@@ -61,6 +61,7 @@ var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
         
         c.on('close',() => {
             local.end();
+            createReverseRelayTCP(protocol,localPort,localAddr,remote,dest);
         });
         local.on('close', () => {
             local_connected =false;

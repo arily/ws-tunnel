@@ -137,7 +137,8 @@ var branch_reverse_tcp = (src,port,addr,req) =>{
             console.log(e);
         });
         src.on('close',() => {
-            dst.close();
+            chain.srcConnection = false;
+            report_status(chain);
         });
         socket.on('close', () => {
             src.close();
