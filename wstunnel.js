@@ -22,6 +22,12 @@ var report_status = (chain) => {
         console.log(id,str_left,server_connection,str_right,rawurl);   
     }
 };
+var verbose = (...str) => {
+    verbose = false;
+    if (verbose){
+        console.log(str);
+    }
+};
 var rerun_with_real = (real) => {
     dispatch(real);
 };
@@ -128,11 +134,11 @@ var branch_reverse_tcp = (src,port,addr,req) =>{
         var address = socket.address();
 
         socket.on('data',function(data){
-            console.log('sent to ws',data.toString());
+            verbose('sent to ws',data.toString());
             src.send(data);
         });
         src.on('message',(data) =>{
-            console.log('sent to tcp',data.toString());
+            verbose('sent to tcp',data.toString());
             socket.write(data);
         });
         src.on('error', (e) => {
