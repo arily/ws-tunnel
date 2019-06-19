@@ -136,17 +136,17 @@ var branch_reverse_tcp = (src,port,addr,req) =>{
         src.on('error', (e) => {
             console.log(e);
         });
+        src.on('close',() => {
+            dst.close();
+        });
+        socket.on('close', () => {
+            src.close();
+        });
     });
     dst.listen(port,addr);
     chain.dstConnection = true;
     report_status(chain);
     
-    src.on('close',() => {
-        dst.close();
-    });
-    dst.on('close', () => {
-        src.close();
-    });
 }
 var dispatch = (rawurl,src,req)=>{
     url = new URL(rawurl);
