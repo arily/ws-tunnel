@@ -127,10 +127,11 @@ var branch_reverse_tcp = (src,port,addr,req) =>{
 
         var address = socket.address();
 
-        socket.on('data',function(data){
-            console.log('sent to ws',data.toString());
-            src.send(data);
-        });
+        //socket.on('data',function(data){
+        //    console.log('sent to ws',data.toString());
+        //    src.send(data);
+        //});
+        socket.pipe(src);
         src.on('message',(data) =>{
             console.log('sent to tcp',data.toString());
             socket.write(data);
