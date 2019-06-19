@@ -4,6 +4,8 @@ var ws = require('ws');
 var net = require("net");
 var url = require('url');
 var dgram = require('dgram');
+var report = false;
+var prefix = '/';
 
 var report_status = (chain) => {
     status = chain;
@@ -16,7 +18,9 @@ var report_status = (chain) => {
     if (!status.srcConnection){
         id = '00000000-0000';
     }
-    console.log(id,str_left,server_connection,str_right,rawurl);
+    if (report === true){
+        console.log(id,str_left,server_connection,str_right,rawurl);   
+    }
 };
 var rerun_with_real = (real) => {
     dispatch(real);
@@ -112,7 +116,7 @@ var dispatch = (rawurl,src,req)=>{
     } else if (protocol == 'prefab:'){
         myroute = [
             {'dial' : 'myname',
-             'bound' : 'tcp://ri.mk:22'
+             'bound' : 'tcp://localhost:22'
             }
         ];
         real_connection = undefined;
@@ -129,7 +133,7 @@ var dispatch = (rawurl,src,req)=>{
     }
 };
 
-var s = new server({port:5001,clientTracking: true});
+var s = new server({port:5001,clientTracking: 0,perMessageDeflate: { threshold: 0}});
 var server_name = 'Proxy';
     s.getUniqueID = function () {
         function s4() {
@@ -140,7 +144,8 @@ var server_name = 'Proxy';
 
 s.on('connection',function(src,req){
     rawurl = req.url;// like /url:port
-    rawurl = rawurl.substr(1); //trim first '/'
+    rawurl = rawurl.replace(prefix,"");
+    
     if (rawurl == ''){
         rawurl = 'tcp://localhost:8080'
     }
