@@ -44,6 +44,11 @@ var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
             local.on('connect',()=>{
                 local_connected = true;
                 local.write(data);
+                console.log('sent to local ', data.toString())
+            });
+            local.on('data', (data)=>{
+                c.send(data);
+                console.log('sent to ws ', data.toString())
             });
         } else {
             local.write(data);
@@ -68,6 +73,7 @@ var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
             local.end();
         });
         local.on('close', () => {
+            local_connected =false;
             c.close();
         });
     });
@@ -89,8 +95,8 @@ var createServers = (array) =>{
 
 
 var patch = [
-    {port:5000,dest:'tcp://localhost:22',remote:'ws://ri.mk:5001'},
-    {dest:'reversetcp://localhost:1234',remote:'ws://ri.mk:5001',localAddr: 'tcp://baidu.com:80',reverse: true},
+    {port:5000,dest:'tcp://0.0.0.0:22',remote:'ws://ri.mk:5001'},
+    {dest:'reversetcp://0.0.0.0:1234',remote:'ws://ri.mk:5001',localAddr: 'tcp://localhost:22',reverse: true},
 ];
 
 createServers(patch);
