@@ -22,7 +22,7 @@ var report_status = (chain) => {
         console.log(id,str_left,server_connection,str_right,rawurl);   
     }
 };
-var verbose = (...str) => {
+var verbose = function(...str){
     verbose = false;
     if (verbose){
         console.log(str);
