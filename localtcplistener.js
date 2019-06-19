@@ -5,7 +5,7 @@ var url = require('url');
 var report = (chain) => {
     console.log('localhost:'.concat(chain.port),'<--->',chain.remote,'<--->',chain.dest,"(static)");
 };
-var verbose = (...str) => {
+var verbose = function(...str){
     verbose = false;
     if (verbose){
         console.log(str);
