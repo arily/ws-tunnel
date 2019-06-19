@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script   src="https://code.jquery.com/jquery-3.4.1.min.js"   integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="   crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="protocol" value="tcp" >
+    <input type="text" id="address" value="127.0.0.1">
+    <input type="number" id="port" value="5005">
+    <input type="button" id="sample" value="链接">
+    <input type='text' id='content' value="" disabled='disabled'>
+    <input type="button" id='send' value="发送" disabled='disabled'>
+    <input type="button" id='httptest' value="http test" disabled='disabled'>
+    <input type='button' id='disconnect' value='disconnect' disabled='disabled'>
+    <script>
+        var sock;
+        var queue = [];
+        var reader_busy = false;
+        const a = new FileReader();
+        a.onloadstart = () => reader_busy = true;
+        a.onloadend = () => reader_busy = false;
+        a.onload = function(event){
+            var content = a.result;//内容就在这里
+            console.log(content);
+        };
+        document.addEventListener('DOMContentLoaded',function(e){
+            // サーバーにデータを送る
+            document.getElementById('sample').addEventListener('click',function(e){
+                var addr = 'ws://127.0.0.1:5001/'.concat($("#protocol").val(),'://',$("#address").val(),':',$("#port").val());
+                console.log(addr);
+                sock = new WebSocket(addr);
+                sock.addEventListener('open',function(e){
+                    console.log('Socket connected');
+                    $("#content").prop('disabled', false);
+                    $("#send").prop('disabled', false);
+                    $("#httptest").prop('disabled', false);
+                    $("#disconnect").prop('disabled', false);
+                    
+                    $("#protocol").prop('disabled', true);
+                    $("#address").prop('disabled', true);
+                    $("#port").prop('disabled', true);
+                });
+
+                // サーバーからデータを受け取る
+                sock.addEventListener('message',(e) => queue.push(e.data));
+                sock.addEventListener('close', ()=>{
+                    $("#content").prop('disabled', true);
+                    $("#send").prop('disabled', true);
+                    $("#httptest").prop('disabled', true);
+                    $("#disconnect").prop('disabled', true);
+                    console.log('Socket disconnected');
+                    $("#protocol").prop('disabled', false);
+                    $("#address").prop('disabled', false);
+                    $("#port").prop('disabled', false);
+                })
+            });
+             document.getElementById('send').addEventListener('click',function(e){
+                 console.log($('#content').val().concat("\r\n"));
+                 sock.send(new Blob([$('#content').val().concat("\r\n")], {type: "text/plain"}));
+                 $('#content').val('');
+            });
+            document.getElementById('httptest').addEventListener('click',function(e){
+                 sock.send(new Blob(["GET / HTTP/1.1\r\nHost:".concat($("#address").val()).concat("\r\n\r\n")], {type: "text/plain"}));
+            });
+            document.getElementById('disconnect').addEventListener('click',function(e){
+                 sock.close();
+            });
+            self.setInterval(()=>{
+                if (queue.length !== 0 && reader_busy === false){
+                    shift = queue.shift();
+                    a.readAsText(shift);
+                }
+            },1);
+        });
+    </script>
+</body>
+</html>
