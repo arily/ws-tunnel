@@ -5,12 +5,6 @@ var url = require('url');
 var report = (chain) => {
     console.log('localhost:'.concat(chain.port),'<--->',chain.remote,'<--->',chain.dest,"(static)");
 };
-var verbose = function(...str){
-    verbose = false;
-    if (verbose){
-        console.log(str);
-    }
-};
 var createServer = (port,remote,dest) => {
     var tcp = net.createServer(function(socket){
 
@@ -38,7 +32,6 @@ var createServer = (port,remote,dest) => {
     tcp.listen(port);
 };
 var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
-    
     var c = new ws(remote.concat('/',dest));
     c.on('open',()=>{
         var local = new net.Socket();
@@ -48,7 +41,6 @@ var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
                 local.connect(localPort, localAddr);
             }
             local.write(data);
-            verbose('sent to local ', data.toString());
         });
         local.on('connect',()=>{
             local_connected = true;
@@ -65,7 +57,6 @@ var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
        
         local.on('data',(data) => {
             c.send(data);
-            verbose('sent to ws ', data.toString())
         });
         
         c.on('close',() => {
