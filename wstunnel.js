@@ -4,7 +4,7 @@ var ws = require('ws');
 var net = require("net");
 var url = require('url');
 var dgram = require('dgram');
-var report = false;
+var report = true;
 var prefix = '/';
 
 var report_status = (chain) => {
@@ -28,44 +28,46 @@ var rerun_with_real = (real) => {
 var branch_tcp = (src,port,addr,req) => {
     
     var dst = new net.Socket();
-        dst.connect(port, addr);
-        dst.on('connect',() =>{
-            chain.dstConnection = true;
-            chain.localPort = dst.localPort;
-            chain.localAddress = dst.localAddress;
-            report_status(chain);
-        });
+    dst.connect(port, addr);
+    dst.on('connect',() =>{
+        chain.dstConnection = true;
+        chain.localPort = dst.localPort;
+        chain.localAddress = dst.localAddress;
+        report_status(chain);
+    });
         
-        src.on('error',(e) =>{
-            console.log(e);
-            src.close();
-        });
-        dst.on('error',(e) =>{
-            console.log(e);
-            src.close();
-            dst.end();
-        });
+    src.on('error',(e) =>{
+        console.log(e);
+        src.close();
+    });
+    dst.on('error',(e) =>{
+        console.log(e);
+        src.close();
+        dst.end();
+    });
     
-        src.on('message',(data) => {
-            dst.write(data);
-        });
-        dst.on('data',(data) => {
-            src.send(data);
-        });
+    src.on('message',(data) => {
+        dst.write(data);
+    });
+    dst.on('data',(data) => {
+        src.send(data);
+    });
+    //src.pipe(dst);
+    //dst.pipe(src);
 
-        src.on('close',() => {
-            chain.srcConnection = false;
-            dst.end();
-            report_status(chain);
-            delete chain.id;
-        });
-        dst.on('close', () => {
-            chain.dstConnection = false;
-            delete chain.localPort;
-            delete chain.localAddress;
-            src.close();
-            report_status(chain);
-        });
+    src.on('close',() => {
+        chain.srcConnection = false;
+        dst.end();
+        report_status(chain);
+        delete chain.id;
+    });
+    dst.on('close', () => {
+        chain.dstConnection = false;
+        delete chain.localPort;
+        delete chain.localAddress;
+        src.close();
+        report_status(chain);
+    });
 };
 var branch_udp = (src,port,addr,req) => {
     var dst = dgram.createSocket('udp4');
@@ -102,19 +104,8 @@ var branch_udp = (src,port,addr,req) => {
             console.log(e);
         });
 };
-var dispatch = (rawurl,src,req)=>{
-    url = new URL(rawurl);
-    protocol = url.protocol;
-    port = url.port;
-    addr = url.hostname;
-    chain.url = url;
-    //connection to remote 
-     if (protocol == "tcp:"){
-        branch_tcp(src,port,addr,req);
-    } else if (protocol == "udp:"){
-        branch_udp(src,port,addr,req);
-    } else if (protocol == 'prefab:'){
-        myroute = [
+var branch_predfab = (src,port,addr,req) =>{
+    myroute = [
             {'dial' : 'myname',
              'bound' : 'tcp://localhost:22'
             }
@@ -130,6 +121,48 @@ var dispatch = (rawurl,src,req)=>{
         if (undefined !== real){
             dispatch(real,src,req);
         }
+}
+var branch_reverse_tcp = (src,port,addr,req) =>{
+    var dst = net.createServer(function(socket){
+
+        var address = socket.address();
+
+        socket.on('data',function(data){
+            src.send(data);
+        });
+        src.on('message',(data) =>{
+            socket.write(data);
+        });
+        src.on('error', (e) => {
+            console.log(e);
+        });
+    });
+    dst.listen(port,addr);
+    chain.dstConnection = true;
+    report_status(chain);
+    
+    src.on('close',() => {
+        dst.close();
+    });
+    dst.on('close', () => {
+        src.close();
+    });
+}
+var dispatch = (rawurl,src,req)=>{
+    url = new URL(rawurl);
+    protocol = url.protocol;
+    port = url.port;
+    addr = url.hostname;
+    chain.url = url;
+    //connection to remote 
+     if (protocol == "tcp:"){
+        branch_tcp(src,port,addr,req);
+    } else if (protocol == "udp:"){
+        branch_udp(src,port,addr,req);
+    } else if (protocol == 'prefab:'){
+        branch_prefab(src,port,addr,req);
+    } else if (protocol == 'reversetcp:'){
+        branch_reverse_tcp(src,port,addr,req);
     }
 };
 
