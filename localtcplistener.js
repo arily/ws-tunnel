@@ -1,32 +1,49 @@
 var net = require("net");
 var ws = require('ws');
 var url = require('url');
+var getUniqueID = function () {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+    return s4() + s4() + '-' + s4();
+};
+
 
 var report = (chain) => {
     console.log('localhost:'.concat(chain.port),'<--->',chain.remote,'<--->',chain.dest,"(static)");
 };
-var createServer = (port,remote,dest) => {
-    var tcp = net.createServer(function(socket){
-
+var wsRelay = function(socket,remote,dest,uuid){
         var address = socket.address();
-        var c = new ws(remote.concat('/',dest));
+        var c = new ws(remote.concat('/',dest),{headers:{uuid:uuid}});
+        
+            c.on('open',()=>{
+                socket.on('data',(data)=>{
+                    c.send(data);
+                });
+                c.on('message',(data) =>{
+                    socket.write(data);
+                });
+            });
+        
 
-        c.on('open',()=>{
-            socket.on('data',function(data){
-                c.send(data);
-            });
-            c.on('message',(data) =>{
-                socket.write(data);
-            });
-            c.on('close',() => {
+        c.on('close',(e) => {
+            console.log(e);
+            if (e === 1006){
+                wsRelay(socket,remote,dest,uuid);
+            } else {
                 socket.end();
-            });
-            socket.on('close', () => {
-                c.close();
-            });
+            }
         });
+        socket.on('close', () => {
+            c.close();
+        });
+
+    }
+
+var createServer = (port,remote,dest,uuid = getUniqueID()) => {
+    var tcp = net.createServer((socket) =>{
+        wsRelay(socket,remote,dest,uuid);
     }).on('error', (e) => {
-        tcp.end();
         console.log(e);
     });
     tcp.listen(port);
@@ -86,8 +103,7 @@ var createServers = (array) =>{
 
 
 var patch = [
-    {port:5000,dest:'tcp://0.0.0.0:22',remote:'ws://ri.mk:5001'},
-    {dest:'reversetcp://0.0.0.0:1234',remote:'ws://ri.mk:5001',localAddr: 'tcp://localhost:22',reverse: true},
+    {port:5000,dest:'tcp://localhost:5004',remote:'ws://localhost:5001'},
 ];
 
 createServers(patch);
