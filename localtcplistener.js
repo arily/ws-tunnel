@@ -24,10 +24,10 @@ var wsRelay = function(socket,remote,dest,uuid){
                     socket.write(data);
                 });
             });
-        
+        c.on('ping',()=> console.log('ping'));
+    c.on('pong', ()=>console.log('pong'));
 
         c.on('close',(e) => {
-            console.log(e);
             if (e === 1006){
                 wsRelay(socket,remote,dest,uuid);
             } else {
