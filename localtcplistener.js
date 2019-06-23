@@ -29,6 +29,7 @@ var wsRelay = function(socket,remote,dest,uuid){
 
         c.on('close',(e) => {
             if (e === 1006){
+                c.terminate();
                 wsRelay(socket,remote,dest,uuid);
             } else {
                 socket.end();
