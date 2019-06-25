@@ -23,6 +23,10 @@ var wsRelay = function(socket,remote,dest,uuid){
                 c.on('message',(data) =>{
                     socket.write(data);
                 });
+                socket.on('close', () => {
+                    c.close();
+                });
+
             });
         c.on('ping',()=> console.log('ping'));
     c.on('pong', ()=>console.log('pong'));
@@ -35,15 +39,11 @@ var wsRelay = function(socket,remote,dest,uuid){
                 socket.end();
             }
         });
-        socket.on('close', () => {
-            c.close();
-        });
-
     }
 
-var createServer = (port,remote,dest,uuid = getUniqueID()) => {
+var createServer = (port,remote,dest) => {
     var tcp = net.createServer((socket) =>{
-        wsRelay(socket,remote,dest,uuid);
+        wsRelay(socket,remote,dest,getUniqueID());
     }).on('error', (e) => {
         console.log(e);
     });
@@ -104,7 +104,7 @@ var createServers = (array) =>{
 
 
 var patch = [
-    {port:5000,dest:'tcp://localhost:5004',remote:'ws://localhost:5001'},
+    {port:5000,dest:'tcp://ri.mk:22',remote:'ws://localhost:5001'},
 ];
 
 createServers(patch);
