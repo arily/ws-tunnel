@@ -104,7 +104,7 @@ var createServers = (array) =>{
 
 
 var patch = [
-    {port:5000,dest:'tcp://ri.mk:22',remote:'ws://localhost:5001'},
+    {port:5000,dest:'tcp://localhost:22',remote:'ws://localhost:5001'},
 ];
 
 createServers(patch);
