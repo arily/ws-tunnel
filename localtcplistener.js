@@ -23,10 +23,6 @@ var wsRelay = function(socket,remote,dest,uuid){
                 c.on('message',(data) =>{
                     socket.write(data);
                 });
-                socket.on('close', () => {
-                    c.close();
-                });
-
             });
         c.on('ping',()=> console.log('ping'));
     c.on('pong', ()=>console.log('pong'));
@@ -39,6 +35,20 @@ var wsRelay = function(socket,remote,dest,uuid){
                 socket.end();
             }
         });
+        socket.on('close', () => {
+            if (c.readyState === 1 ){
+                c.close();
+            } else {
+                setInterval((c)=>{
+                    if (c.readyState === 1){
+                        c.close();
+                    } else {
+                        c.terminate();
+                    }
+                },1000)
+            }
+        });
+
     }
 
 var createServer = (port,remote,dest) => {
