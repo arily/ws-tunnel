@@ -1,6 +1,7 @@
 var net = require("net");
 var ws = require('ws');
 var url = require('url');
+require('console-stamp')(console, '[HH:MM:ss.l]');
 var getUniqueID = function () {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
