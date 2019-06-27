@@ -18,10 +18,18 @@ var wsRelay = function(socket,remote,dest,uuid){
         
             c.on('open',()=>{
                 socket.on('data',(data)=>{
-                    c.send(data);
+                    try{
+                        c.send(data);
+                    } catch (error){
+                        console.log('Send to ws Error:',error);
+                    }
                 });
                 c.on('message',(data) =>{
-                    socket.write(data);
+                    try{
+                        socket.write(data);
+                    } catch (error){
+                        console.log('Send to Socket Error:',error);
+                    }
                 });
             });
         c.on('ping',()=> console.log('ping'));
@@ -40,12 +48,11 @@ var wsRelay = function(socket,remote,dest,uuid){
                 c.close();
             } else {
                 setInterval((c)=>{
-                    if (c !== undefined && c.readyState === 1){
-                        c.close();
-                    } else {
-                        c.terminate();
+                    if (c !== undefined){
+                        if (c.readyState === 1) c.close();
+                        else c.terminate();
                     }
-                },1000)
+                },1000);
             }
         });
 
@@ -116,6 +123,11 @@ var createServers = (array) =>{
 try {
     var {patch} = require('./localtcplistenerconfig');
     createServers(patch);
+    //http://blog.cuicc.com/blog/2017/03/26/nodejs-ECONNRESET/
+    process.on('uncaughtException', function(err) {
+        console.log(err.stack);
+        console.log('NOT exit...');
+    });
 } catch (error){
-    
+    console.log(error);
 }
