@@ -36,11 +36,11 @@ var wsRelay = function(socket,remote,dest,uuid){
             }
         });
         socket.on('close', () => {
-            if (c.readyState === 1 ){
+            if (c !== undefined && c.readyState === 1 ){
                 c.close();
             } else {
                 setInterval((c)=>{
-                    if (c.readyState === 1){
+                    if (c !== undefined && c.readyState === 1){
                         c.close();
                     } else {
                         c.terminate();
@@ -113,8 +113,9 @@ var createServers = (array) =>{
 }
 
 
-var patch = [
-    {port:5000,dest:'tcp://localhost:22',remote:'ws://localhost:5001'},
-];
-
-createServers(patch);
+try {
+    var {patch} = require('./localtcplistenerconfig');
+    createServers(patch);
+} catch (error){
+    
+}

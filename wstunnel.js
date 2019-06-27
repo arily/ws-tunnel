@@ -4,7 +4,6 @@ var ws = require('ws');
 var net = require("net");
 var url = require('url');
 var dgram = require('dgram');
-var report = true;
 
 
 var report_status = (chain) => {
@@ -46,7 +45,8 @@ class wsServer{
         var server = require('ws').Server;
         this.server = new server(config);
         this.connections = new wsConnectionContainer;
-        this.server.on('connection',this.newConnection.bind(this));
+        this.newConnection = this.newConnection.bind(this);
+        this.server.on('connection',this.newConnection);
     }
     newConnection (src,req){
         let rawurl = req.url;// like /url:port
@@ -244,6 +244,7 @@ class wsTunnelProxifier{
         this.dstSendMethodName = dstSendMethodName;
         this.chain = chain;
         this.container = container;
+        this.config = require('./wstunnelconfig').Proxifier;
         
         this.getSrc = this.getSrc.bind(this);
         this.getDst = this.getDst.bind(this);
@@ -279,10 +280,10 @@ class wsTunnelProxifier{
         this.tunnel();
         
     }
-    getSrc(){
+    getSrc() {
         return this.src;
     }
-    getDst(){
+    getDst() {
         return this.dst;
     }
     suspend(socket,timeOut){
@@ -316,13 +317,13 @@ class wsTunnelProxifier{
         this.resume(this.dst);
     }
     tunnel(){
-        this.getSrc().removeListener(`${this.srcOnMessageEventName}`,()=>{});
-        this.getDst().removeListener(`${this.dstOnMessageEventName}`,()=>{});
-        this.getSrc().on(`${this.srcOnMessageEventName}`,(data) => {
-            this.getDst()[`${this.dstSendMethodName}`](data);
+        this.src.removeListener(`${this.srcOnMessageEventName}`,()=>{});
+        this.dst.removeListener(`${this.dstOnMessageEventName}`,()=>{});
+        this.src.on(`${this.srcOnMessageEventName}`,(data) => {
+            this.dst[`${this.dstSendMethodName}`](data);
         });
-        this.getDst().on(`${this.dstOnMessageEventName}`,(data) => {
-            this.getSrc()[`${this.srcSendMethodName}`](data);
+        this.dst.on(`${this.dstOnMessageEventName}`,(data) => {
+            this.src[`${this.srcSendMethodName}`](data);
         });
     }
     wsKeepalive(){
@@ -353,7 +354,7 @@ class wsTunnelProxifier{
         this.chain.srcConnection = 0;
         report_status(this.chain);
         if (e === 1006){
-            this.suspend(this.dst,5000);
+            this.suspend(this.dst,this.config.reconnectWindow);
         } else {
             if (this.chain.dstConnection === 1){
                 this.closeDst(e);
@@ -396,5 +397,11 @@ class wsConnectionContainer{
         delete this.container[id] ;
     }
 }
-
-var s = new wsServer({port:5001,clientTracking: 0,perMessageDeflate: { threshold: 0}},'/');
+try{
+    var { port, output,outputLevel } = require('./wstunnelconfig').wsServer;
+    report = output;
+    logLevel = outputLevel;
+    var s = new wsServer({port:port,clientTracking: 0,perMessageDeflate: { threshold: 0}},'/');
+} catch (error) {
+    if (logLevel >0) console.log(error);
+}
