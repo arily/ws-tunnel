@@ -1,5 +1,5 @@
 module.exports = {
     patch : [
-        {port:1080,dest:'tcp://localhost:10800',remote:'ws://localhost:5001'}
+        {port:1080,dest:'prefab://localhost.socks_proxy',remote:'ws://localhost:5001'}
     ],
 };

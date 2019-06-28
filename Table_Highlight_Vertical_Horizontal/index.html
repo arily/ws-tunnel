@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Table V03</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/perfect-scrollbar/perfect-scrollbar.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+</head>
+<body>
+	
+	<div class="limiter">
+		<div class="container-table100">
+			<div class="wrap-table100">
+				<div class="table100 ver2 m-b-110">
+					<table data-vertable="ver2">
+						<thead>
+							<tr class="row100 head">
+								<th class="column100 column1" data-column="column1">Server</th>
+								<th class="column100 column2" data-column="column2">Source</th>
+								<th class="column100 column3" data-column="column3">Status</th>
+								<th class="column100 column4" data-column="column4">Local</th>
+								<th class="column100 column5" data-column="column5">Destination</th>
+							</tr>
+						</thead>
+						<tbody id='monitor'>
+							
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+	
+
+<!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+<script>
+    window.onload = function(){
+        $.getJSON('http://localhost:5001/monitor',(e)=>{
+            var result = Object.keys(e).map(function(key) {
+                return e[key];
+            });
+            console.log(result);
+            var t = {'<>':'tr class="row100"','html':[
+                {'<>':'td class="column100 column1"', 'html':'${serverName}'},
+                {'<>':'td class="column100 column2"', 'html':'${srcID}'},
+                {'<>':'td class="column100 column3"','html':'src:${srcConnection} dst:${dstConnection}'},
+                {'<>':'td class="column100 column4"','html':'${localAddress}:${localPort}'},
+                {'<>':'td class="column100 column5"','html':'${dstProtocol}://${dstAddr}:${dstPort}'}
+            ]};
+            document.getElementById('monitor').innerHTML = (json2html.transform(result,t));
+        });
+    }
+    </script>
+</body>
+</html>
