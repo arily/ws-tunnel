@@ -30,6 +30,7 @@ var wsRelay = function(socket,remote,dest,uuid){
                         socket.write(data);
                     } catch (error){
                         console.log('Send to Socket Error:',error);
+                        c.terminate();
                     }
                 });
             });
