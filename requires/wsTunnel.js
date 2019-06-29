@@ -3,9 +3,9 @@ module.exports = class wsTunnel {
         return this.headers.uuid;
     }
     constructor (src,protocol,port,addr,req,headers,server) {
-        var net = require("net");
-        var url = require('url');
-        var dgram = require('dgram');
+
+//        this.url = require('url');
+//        this.dgram = require('dgram');
         this.serverName = server.name;
         this.getID = this.getID.bind(this);
         this.src = src;
@@ -32,15 +32,15 @@ module.exports = class wsTunnel {
         this[`${this.protocol}`](src,port,addr,req);
     }
     tcp(src,port,addr,req){
-        var net = require("net");
+        let net = require("net");
         var dst = new net.Socket();
         dst.connect(port, addr);
-        var wsTunnelProxifier = require('./wsTunnelProxifier');
+        let wsTunnelProxifier = require('./wsTunnelProxifier');
         this.proxifier = new wsTunnelProxifier(src,dst,addr,req,'message','data','send','write',this.chain,this.server.connections);
     }
     tcpold(src,port,addr,req){
-        var net = require("net");
-        var dst = new net.Socket();
+        this.net = require("net");
+        var dst = new this.net.Socket();
         dst.connect(port, addr);
         dst.on('connect',() =>{
             this.chain.dstConnection = 1;
@@ -122,8 +122,8 @@ module.exports = class wsTunnel {
         });
     }
     reversetcp(src,port,addr,req){
-        var net = require("net");
-        var dst = net.createServer(function(dst){
+        let net = require("net");
+        let dst = net.createServer(function(dst){
 
             var address = socket.address();
 
@@ -149,7 +149,7 @@ module.exports = class wsTunnel {
         report_status(this.chain);
     }
     prefab(src,port,addr,req){
-        var myroute = require('../wstunnelconfig').Prefab;
+        let myroute = require('../wstunnelconfig').Prefab;
         let real_connection = undefined;
         let real = undefined;
         myroute.some((e) => {
