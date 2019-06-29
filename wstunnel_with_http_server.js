@@ -2,7 +2,8 @@
 const http = require('http');
 const url = require('url');
 var fs = require('fs');//引入文件读取模块
-var documentRoot = './http2';//这里是文件路径这里表示同级目录下我有个http2文件夹
+var mime = require('mime-types');
+
 //https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
 require('console-stamp')(console, '[HH:MM:ss.l]');
 
@@ -51,8 +52,9 @@ try{
             }
             response.end(JSON.stringify(chains));
         } else {
+            let documentRoot = '.';//这里是文件路径这里表示同级目录下我有个http2文件夹
             //response.writeHead(404);
-            var file = documentRoot + request.url;
+            let file = documentRoot + request.url;
             fs.readFile( file , function(err,data){
                 /*
                     一参为文件路径
@@ -67,11 +69,17 @@ try{
                     response.write('<h1>404错误</h1><p>你要找的页面不存在</p>');
                     response.end();
                 }else{
-                    response.writeHeader(200,{
-                        'content-type' : 'text/html;charset="utf-8"'
-                    });
-                    response.write(data);//将index.html显示在客户端
-                    response.end();
+                    ct = mime.lookup(file);
+                    if (!ct === false){
+                        response.writeHeader(200,{
+                            'content-type' : ct,
+                        });
+                        response.write(data);//将index.html显示在客户端
+                        response.end();
+                    } else {
+                        response.end('unknown MIME Type.')
+                    }
+                    
                 }
             });
         }

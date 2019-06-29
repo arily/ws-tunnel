@@ -122,7 +122,6 @@ module.exports = class wsTunnelProxifier{
                 this.dst[`${this.dstSendMethodName}`](data);
                 this.chain.dstSentBytes += data.byteLength;
             } catch (err){
-                delete data;
                 throw err;
             }
         });
@@ -131,7 +130,6 @@ module.exports = class wsTunnelProxifier{
                 this.src[`${this.srcSendMethodName}`](data);
                 this.chain.srcSentBytes += data.byteLength;
             } catch (err){
-                delete data;
                 throw err;
             }
         });
