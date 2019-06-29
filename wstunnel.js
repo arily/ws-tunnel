@@ -13,7 +13,11 @@ try{
     if (wspath[wspath.length-1] == '/'){
         wspath = wspath.substring( 0, wspath.length-1 );
     }
-    var s = new wsTunnelServer({port: port,clientTracking: 0,perMessageDeflate: { threshold: 0}},wspath);
+    var s = new wsTunnelServer({
+        noServer: noServer,
+        clientTracking: 0,
+    }
+                               wspath);
 } catch (error) {
     if (logLevel > 1 )console.log(error);
 }

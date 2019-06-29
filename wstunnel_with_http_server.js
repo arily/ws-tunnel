@@ -18,7 +18,29 @@ try{
     if (wspath[wspath.length-1] == '/'){
         wspath = wspath.substring( 0, wspath.length-1 );
     }
-    var s = new wsTunnelServer({noServer: noServer,clientTracking: 0,perMessageDeflate: { threshold: 0}},wspath);
+    var s = new wsTunnelServer({
+        noServer: noServer,
+        clientTracking: 0,
+        perMessageDeflate: perMessageDeflate: {
+    zlibDeflateOptions: {
+      // See zlib defaults.
+      chunkSize: 1024,
+      memLevel: 7,
+      level: 3
+    },
+    zlibInflateOptions: {
+      chunkSize: 10 * 1024
+    },
+    // Other options settable:
+    clientNoContextTakeover: true, // Defaults to negotiated value.
+    serverNoContextTakeover: true, // Defaults to negotiated value.
+    serverMaxWindowBits: 10, // Defaults to negotiated value.
+    // Below options specified as default values.
+    concurrencyLimit: 10, // Limits zlib concurrency for perf.
+    threshold: 1024 // Size (in bytes) below which messages
+    // should not be compressed.
+  },
+                               wspath);
     var server = http.createServer(function(request, response) {
         if (request.url == wspath){
 
