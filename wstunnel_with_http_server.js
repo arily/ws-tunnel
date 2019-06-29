@@ -24,7 +24,7 @@ try{
             response.writeHead(404);
             response.end();
         } else {
-            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.writeHead(200, {'Content-Type': 'application/json'});
             chains = s.connections.getChains();
             for (var key in chains) {
                 switch(chains[key].srcConnection){
