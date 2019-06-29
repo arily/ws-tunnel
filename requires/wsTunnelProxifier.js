@@ -118,12 +118,22 @@ module.exports = class wsTunnelProxifier{
         this.src.removeListener(`${this.srcOnMessageEventName}`,()=>{});
         this.dst.removeListener(`${this.dstOnMessageEventName}`,()=>{});
         this.src.on(`${this.srcOnMessageEventName}`,(data) => {
-            this.dst[`${this.dstSendMethodName}`](data);
-            this.chain.dstSentBytes += data.byteLength;
+            try{
+                this.dst[`${this.dstSendMethodName}`](data);
+                this.chain.dstSentBytes += data.byteLength;
+            } catch (err){
+                delete data;
+                throw err;
+            }
         });
         this.dst.on(`${this.dstOnMessageEventName}`,(data) => {
-            this.src[`${this.srcSendMethodName}`](data);
-            this.chain.srcSentBytes += data.byteLength;
+            try{
+                this.src[`${this.srcSendMethodName}`](data);
+                this.chain.srcSentBytes += data.byteLength;
+            } catch (err){
+                delete data;
+                throw err;
+            }
         });
     }
     wsKeepalive(){
