@@ -65,7 +65,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
 <script>
     window.onload = setInterval(function(){
-        $.getJSON('http://ri.mk:5001/monitor',(e)=>{
+        $.getJSON('http://localhost:5001/monitor',(e)=>{
             var result = Object.keys(e).map(function(key) {
                 return e[key];
             });
