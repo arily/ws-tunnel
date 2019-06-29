@@ -1,68 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Table V03</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-<!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="vendor/perfect-scrollbar/perfect-scrollbar.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="css/util.css">
-	<link rel="stylesheet" type="text/css" href="css/main.css">
-<!--===============================================================================================-->
-</head>
-<body>
-	
-	<div class="limiter">
-		<div class="container-table100">
-			<div class="wrap-table100">
-				<div class="table100 ver2 m-b-110">
-					<table data-vertable="ver2">
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+		<title>Sticky Table Headers Revisited | Demo 3</title>
+		<meta name="description" content="Sticky Table Headers Revisited: Creating functional and flexible sticky table headers" />
+		<meta name="keywords" content="Sticky Table Headers Revisited" />
+		<meta name="author" content="Codrops" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="css/demo.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+		<!--[if IE]>
+  		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="container">
+			<!-- Top Navigation -->
+			
+			<div class="component">
+				<table class="">
 						<thead>
-							<tr class="row100 head">
-								<th class="column100 column1" data-column="column1">Entrance</th>
-								<th class="column100 column2" data-column="column2">Source</th>
-								<th class="column100 column3" data-column="column3">Status</th>
-								<th class="column100 column4" data-column="column4">Local</th>
-								<th class="column100 column5" data-column="column5">Destination</th>
-								<th class="column100 column6" data-column="column6">Bytes sent to Src</th>
-								<th class="column100 column7" data-column="column7">Bytes sent to Dst</th>
+							<tr>
+								<th>Entrance</th>
+								<th>Source</th>
+								<th>Status</th>
+								<th>Local</th>
+								<th>Destination</th>
+								<th>Bytes sent to Src</th>
+								<th>Bytes sent to Dst</th>
 							</tr>
 						</thead>
-						<tbody id='monitor'>
-							
-						</tbody>
-					</table>
-				</div>
-
-			</div>
-		</div>
-	</div>
-
-
-	
-
-<!--===============================================================================================-->	
-	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
-<!--===============================================================================================-->
-	<script src="vendor/bootstrap/js/popper.js"></script>
-	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-<!--===============================================================================================-->
-	<script src="vendor/select2/select2.min.js"></script>
-<!--===============================================================================================-->
-	<script src="js/main.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+					<tbody id='monitor'>
+						
+					</tbody>
+				</table>
+		      </div>
+        </div>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src="js/jquery.stickyheader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
 <script>
     window.onload = setInterval(function(){
         $.getJSON('http://localhost:5001/monitor',(e)=>{
@@ -70,18 +51,18 @@
                 return e[key];
             });
 //            console.log(result);
-            var t = {'<>':'tr class="row100"','html':[
-                {'<>':'td class="column100 column1"', 'html':'${clientID}@${serverName}'},
-                {'<>':'td class="column100 column2"', 'html':'${srcID}'},
-                {'<>':'td class="column100 column3"','html':'src:${srcConnection} dst:${dstConnection}'},
-                {'<>':'td class="column100 column4"','html':'${localAddress}:${localPort}'},
-                {'<>':'td class="column100 column5"','html':'${dstProtocol}://${dstAddr}:${dstPort}'},
-                {'<>':'td class="column100 column6"','html':'${srcSentBytes}'},
-                {'<>':'td class="column100 column7"','html':'${dstSentBytes}'}
+            var t = {'<>':'tr','html':[
+                {'<>':'td', 'html':'${clientID}@${serverName}'},
+                {'<>':'td', 'html':'${srcID}'},
+                {'<>':'td','html':'src:${srcConnection} dst:${dstConnection}'},
+                {'<>':'td','html':'${localAddress}:${localPort}'},
+                {'<>':'td','html':'${dstProtocol}://${dstAddr}:${dstPort}'},
+                {'<>':'td','html':'${srcSentBytes}'},
+                {'<>':'td','html':'${dstSentBytes}'}
             ]};
             document.getElementById('monitor').innerHTML = (json2html.transform(result,t));
         });
     },1000);
-    </script>
-</body>
+</script>
+	</body>
 </html>
