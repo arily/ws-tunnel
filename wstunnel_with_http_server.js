@@ -28,28 +28,28 @@ try{
                 "Access-Control-Allow-Origin": "*"
             });
             chains = s.connections.getChains();
-            for (var key in chains) {
-                switch(chains[key].srcConnection){
-                    case 0 :
-                        chains[key].srcConnection = 'disconnected';
-                        break;
-                    case 1 :
-                        chains[key].srcConnection = 'connected';
-                        break;
-                    case -1 :
-                        chains[key].srcConnection = 'halted';
-                }
-                switch(chains[key].dstConnection){
-                    case 0 :
-                        chains[key].dstConnection = 'disconnected';
-                        break;
-                    case 1 :
-                        chains[key].dstConnection = 'connected';
-                        break;
-                    case -1 :
-                        chains[key].dstConnection = 'halted';
-                }
-            }
+//            for (var key in chains) {
+//                switch(chains[key].srcConnection){
+//                    case 0 :
+//                        chains[key].srcConnection = 'disconnected';
+//                        break;
+//                    case 1 :
+//                        chains[key].srcConnection = 'connected';
+//                        break;
+//                    case -1 :
+//                        chains[key].srcConnection = 'halted';
+//                }
+//                switch(chains[key].dstConnection){
+//                    case 0 :
+//                        chains[key].dstConnection = 'disconnected';
+//                        break;
+//                    case 1 :
+//                        chains[key].dstConnection = 'connected';
+//                        break;
+//                    case -1 :
+//                        chains[key].dstConnection = 'halted';
+//                }
+//            }
             response.end(JSON.stringify(chains));
         } else {
             let documentRoot = '.';//这里是文件路径这里表示同级目录下我有个http2文件夹

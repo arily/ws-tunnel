@@ -22,7 +22,7 @@ var wsRelay = function(socket,remote,dest,uuid,user){
                     try{
                         c.send(data);
                     } catch (error){
-                        console.log('Send to ws Error:',error);
+                        //console.log('Send to ws Error:',error);
                         c.close(1006);
                     }
                 });
@@ -30,14 +30,14 @@ var wsRelay = function(socket,remote,dest,uuid,user){
                     try{
                         socket.write(data);
                     } catch (error){
-                        console.log('Send to Socket Error:',error);
+                        //console.log('Send to Socket Error:',error);
                         socket.destrory();
                         c.terminate();
                     }
                 });
             });
-        c.on('ping',()=> console.log('ping'));
-    c.on('pong', ()=>console.log('pong'));
+//        c.on('ping',()=> console.log('ping'));
+//    c.on('pong', ()=>console.log('pong'));
 
         c.on('close',(e) => {
             if (e === 1006){
@@ -49,6 +49,7 @@ var wsRelay = function(socket,remote,dest,uuid,user){
             }
         });
         socket.on('close', () => {
+            c.removeListener('message', _=>{});
             if (c !== undefined && c.readyState === 1 ){
                 c.close();
             } else {
@@ -60,8 +61,11 @@ var wsRelay = function(socket,remote,dest,uuid,user){
                 },1000);
             }
         });
+        c.on('error',(e)=>{
+            c.close(1006);
+        })
         socket.on('error',(e)=>{
-            console.log(e);
+            //console.log(e);
             if (c !== undefined && c.readyState === 1 ){
                 c.close();
             } else {
