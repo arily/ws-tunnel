@@ -1,9 +1,4 @@
 {
-    /**
-    * Application configuration section
-    * http://pm2.keymetrics.io/docs/usage/application-declaration/
-    * 多个服务，依次放到apps对应的数组里
-    */
     apps : [
         {
             name      : "wstunnelHttpServer",
