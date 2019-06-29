@@ -56,10 +56,12 @@ module.exports = class wsTunnelProxifier{
         this.closeDst = this.closeDst.bind(this);
         
         dst.on('error',(e) =>{
-            console.log(e);
-            src.close();
-            dst.end();
+            //console.log(e);
+            this.closeDst();
         });
+        src.on('error',e =>{
+            this.closeSrc(1006);
+        })
         dst.on('connect',() =>{
             this.chain.dstSentBytes = this.chain.srcSentBytes = 0;
             this.chain.dstConnection = 1;
@@ -118,22 +120,12 @@ module.exports = class wsTunnelProxifier{
         this.src.removeListener(`${this.srcOnMessageEventName}`,()=>{});
         this.dst.removeListener(`${this.dstOnMessageEventName}`,()=>{});
         this.src.on(`${this.srcOnMessageEventName}`,(data) => {
-            try{
-                this.dst[`${this.dstSendMethodName}`](data);
-                this.chain.dstSentBytes += data.byteLength;
-            } catch (err){
-                closeDst();
-                throw err;
-            }
+            this.dst[`${this.dstSendMethodName}`](data);
+            this.chain.dstSentBytes += data.byteLength;
         });
         this.dst.on(`${this.dstOnMessageEventName}`,(data) => {
-            try{
-                this.src[`${this.srcSendMethodName}`](data);
-                this.chain.srcSentBytes += data.byteLength;
-            } catch (err){
-                closeSrc(1006);
-                throw err;
-            }
+            this.src[`${this.srcSendMethodName}`](data);
+            this.chain.srcSentBytes += data.byteLength;
         });
     }
     wsKeepalive(){
