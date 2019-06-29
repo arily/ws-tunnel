@@ -1,13 +1,13 @@
 {
-  "name": "nodejs",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "ws-tunnel",
+  "version": "0.4.8",
+  "description": "a websocket tunnel to join sockets",
+  "main": "wstunnel_with_http_server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "arily",
   "license": "ISC",
   "dependencies": {
     "console-stamp": "^0.2.9",
