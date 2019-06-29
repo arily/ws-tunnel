@@ -24,6 +24,7 @@ try{
             response.writeHead(404);
             response.end();
         } else {
+            response.header("Access-Control-Allow-Origin", "*");
             response.writeHead(200, {'Content-Type': 'application/json'});
             chains = s.connections.getChains();
             for (var key in chains) {
