@@ -21,7 +21,7 @@ try{
     var s = new wsTunnelServer({
         noServer: noServer,
         clientTracking: 0,
-    }
+    },
                                wspath);
     var server = http.createServer(function(request, response) {
         if (request.url == wspath){
