@@ -17,7 +17,7 @@ module.exports = class wsConnectionContainer{
         return this.container[id] !== undefined;
     }
     destroy(id){
-        setInterval(function(){
+        setTimeout(function(){
             delete this.container[id];
         }.bind(this),2000);
         return true;
