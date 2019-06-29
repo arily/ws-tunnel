@@ -1,0 +1,31 @@
+{
+    /**
+    * Application configuration section
+    * http://pm2.keymetrics.io/docs/usage/application-declaration/
+    * 多个服务，依次放到apps对应的数组里
+    */
+    apps : [
+        {
+            name      : \"wstunnelHttpServer\",
+            max_memory_restart: \"300M\",
+            script    : \"./wstunnel_with_http_server.js\",
+            out_file : \"/var/logs/nova_out.log\",
+            error_file : \"/var/logs/nova_error.log\",
+            instances  : 1,
+            exec_mode  : \"cluster\",
+            env: {
+                NODE_ENV: \"production\"
+            }
+        }
+    ],[
+    {
+            name      : \"Sock5_Server\",
+            max_memory_restart: \"100M\",
+            script    : \"./SockServer.js\",
+            out_file : \"/var/logs/nova_out.log\",
+            error_file : \"/var/logs/nova_error.log\",
+            instances  : 2,
+            exec_mode  : \"cluster\"
+        }
+    ]
+ }
