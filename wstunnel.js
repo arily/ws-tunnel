@@ -16,7 +16,7 @@ try{
     var s = new wsTunnelServer({
         noServer: noServer,
         clientTracking: 0,
-    }
+    },
                                wspath);
 } catch (error) {
     if (logLevel > 1 )console.log(error);
