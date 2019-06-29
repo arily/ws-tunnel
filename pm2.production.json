@@ -18,8 +18,9 @@
                 NODE_ENV: "production"
             }
         }
-    ],[
-    {
+    ],
+    [
+        {
             name      : "Sock5_Server",
             max_memory_restart: "100M",
             script    : "./SockServer.js",
