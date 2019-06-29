@@ -55,6 +55,9 @@ try{
             let documentRoot = '.';//这里是文件路径这里表示同级目录下我有个http2文件夹
             //response.writeHead(404);
             let file = documentRoot + request.url;
+            if (file[file.length -1] === '/'){
+                file = file.substring(0,file.length - 1); //remove last '/'
+            }
             fs.readFile( file , function(err,data){
                 /*
                     一参为文件路径
@@ -63,11 +66,40 @@ try{
                         二参为读取成功返回的文本内容
                 */
                 if(err){
-                    response.writeHeader(404,{
-                        'content-type' : 'text/html;charset="utf-8"'
+                    result = ['index.html','default.html','fallback.html'].some(filename => {
+                        path = file + '/' + filename;
+                        if (fs.existsSync(path)){
+                            //-----redirect /A to /A/  to fix relative html file path problem (/a ... b/c -> /a/c) to (/a/ ... b/c -> a/b/c)
+                            if (request.url[request.url.length -1] !== '/'){
+                                 response.writeHeader(301,{
+                                    'Location' : request.url+'/',
+                                });
+                                response.end();
+                                return true;
+                            }
+                            //-----redirect end.
+                            ct = mime.lookup(path);
+                            data = fs.readFileSync(path);
+                            if (!ct === false){
+                                response.writeHeader(200,{
+                                    'content-type' : ct
+                                });
+                                response.write(data);//将index.html显示在客户端
+                                response.end();
+                            }
+                            return true;
+                        } else {
+                            return false;
+                        }
                     });
-                    response.write('<h1>404错误</h1><p>你要找的页面不存在</p>');
-                    response.end();
+
+                    if (!result){
+                        response.writeHeader(404,{
+                            'content-type' : 'text/html;charset="utf-8"'
+                        });
+                        response.write('<h1>404错误</h1><p>你要找的页面不存在</p>');
+                        response.end();
+                    }
                 }else{
                     ct = mime.lookup(file);
                     if (!ct === false){
