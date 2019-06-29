@@ -24,8 +24,8 @@
 				<table class="">
 						<thead>
 							<tr>
-								<th>Entrance</th>
-								<th>Source</th>
+								<th>Client@Server</th>
+								<th>Connection ID</th>
 								<th>Status</th>
 								<th>Local</th>
 								<th>Destination</th>
@@ -46,7 +46,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
 <script>
     window.onload = setInterval(function(){
-        $.getJSON('http://localhost:5001/monitor',(e)=>{
+        $.getJSON('/monitor',(e)=>{
             var result = Object.keys(e).map(function(key) {
                 return e[key];
             });
