@@ -22,8 +22,10 @@ try{
         if (request.url == wspath){
 
         } else if(request.url == '/monitor'){
-            response.header("Access-Control-Allow-Origin", "*");
-            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.writeHead(200, {
+                'Content-Type': 'application/json',
+                "Access-Control-Allow-Origin": "*"
+            });
             chains = s.connections.getChains();
             for (var key in chains) {
                 switch(chains[key].srcConnection){
