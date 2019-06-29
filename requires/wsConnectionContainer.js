@@ -17,7 +17,10 @@ module.exports = class wsConnectionContainer{
         return this.container[id] !== undefined;
     }
     destroy(id){
-        delete this.container[id] ;
+        setInterval(function(){
+            delete this.container[id];
+        },2000);
+        return true;
     }
     getChains(){
         let rtn = {};
