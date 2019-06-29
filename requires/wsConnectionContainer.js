@@ -19,7 +19,7 @@ module.exports = class wsConnectionContainer{
     destroy(id){
         setInterval(function(){
             delete this.container[id];
-        },2000);
+        }.bind(this),2000);
         return true;
     }
     getChains(){
