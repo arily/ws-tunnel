@@ -4,3 +4,5 @@
 #node npm
 /node_modules
 /package-lock.json
+/localtcplistenerconfig.js
+/wstunnelconfig.js

@@ -61,6 +61,7 @@ module.exports = class wsTunnelProxifier{
             dst.end();
         });
         dst.on('connect',() =>{
+            this.chain.dstSentBytes = this.chain.srcSentBytes = 0;
             this.chain.dstConnection = 1;
             this.chain.localPort = dst.localPort;
             this.chain.localAddress = dst.localAddress;
@@ -118,9 +119,11 @@ module.exports = class wsTunnelProxifier{
         this.dst.removeListener(`${this.dstOnMessageEventName}`,()=>{});
         this.src.on(`${this.srcOnMessageEventName}`,(data) => {
             this.dst[`${this.dstSendMethodName}`](data);
+            this.chain.dstSentBytes += data.byteLength;
         });
         this.dst.on(`${this.dstOnMessageEventName}`,(data) => {
             this.src[`${this.srcSendMethodName}`](data);
+            this.chain.srcSentBytes += data.byteLength;
         });
     }
     wsKeepalive(){

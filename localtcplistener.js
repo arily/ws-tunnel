@@ -8,14 +8,14 @@ var getUniqueID = function () {
     }
     return s4() + s4() + '-' + s4();
 };
-
+const clientID = getUniqueID();
 
 var report = (chain) => {
     console.log('localhost:'.concat(chain.port),'<--->',chain.remote,'<--->',chain.dest,"(static)");
 };
-var wsRelay = function(socket,remote,dest,uuid){
+var wsRelay = function(socket,remote,dest,uuid,user){
         var address = socket.address();
-        var c = new ws(remote.concat('/',dest),{headers:{uuid:uuid}});
+        var c = new ws(remote.concat('/',dest),{headers:{uuid:uuid,client:user}});
         
             c.on('open',()=>{
                 socket.on('data',(data)=>{
@@ -23,6 +23,7 @@ var wsRelay = function(socket,remote,dest,uuid){
                         c.send(data);
                     } catch (error){
                         console.log('Send to ws Error:',error);
+                        c.close(1006);
                     }
                 });
                 c.on('message',(data) =>{
@@ -30,6 +31,7 @@ var wsRelay = function(socket,remote,dest,uuid){
                         socket.write(data);
                     } catch (error){
                         console.log('Send to Socket Error:',error);
+                        socket.destrory();
                         c.terminate();
                     }
                 });
@@ -40,7 +42,7 @@ var wsRelay = function(socket,remote,dest,uuid){
         c.on('close',(e) => {
             if (e === 1006){
                 c.terminate();
-                wsRelay(socket,remote,dest,uuid);
+                wsRelay(socket,remote,dest,uuid,user);
             } else {
                 socket.end();
             }
@@ -57,14 +59,25 @@ var wsRelay = function(socket,remote,dest,uuid){
                 },1000);
             }
         });
-
+        socket.on('error',(e)=>{
+            console.log(e);
+            if (c !== undefined && c.readyState === 1 ){
+                c.close();
+            } else {
+                setInterval((c)=>{
+                    if (c !== undefined){
+                        if (c.readyState === 1) c.close();
+                        else c.terminate();
+                    }
+                },1000);
+            }
+            socket.destroy();
+        });
     }
 
 var createServer = (port,remote,dest) => {
     var tcp = net.createServer((socket) =>{
-        wsRelay(socket,remote,dest,getUniqueID());
-    }).on('error', (e) => {
-        console.log(e);
+        wsRelay(socket,remote,dest,getUniqueID(),clientID);
     });
     tcp.listen(port);
 };

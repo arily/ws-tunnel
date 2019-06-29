@@ -30,11 +30,13 @@
 					<table data-vertable="ver2">
 						<thead>
 							<tr class="row100 head">
-								<th class="column100 column1" data-column="column1">Server</th>
+								<th class="column100 column1" data-column="column1">Entrance</th>
 								<th class="column100 column2" data-column="column2">Source</th>
 								<th class="column100 column3" data-column="column3">Status</th>
 								<th class="column100 column4" data-column="column4">Local</th>
 								<th class="column100 column5" data-column="column5">Destination</th>
+								<th class="column100 column6" data-column="column6">Bytes sent to Src</th>
+								<th class="column100 column7" data-column="column7">Bytes sent to Dst</th>
 							</tr>
 						</thead>
 						<tbody id='monitor'>
@@ -63,17 +65,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
 <script>
     window.onload = setInterval(function(){
-        $.getJSON('http://localhost:5001/monitor',(e)=>{
+        $.getJSON('http://ri.mk:5001/monitor',(e)=>{
             var result = Object.keys(e).map(function(key) {
                 return e[key];
             });
-            console.log(result);
+//            console.log(result);
             var t = {'<>':'tr class="row100"','html':[
-                {'<>':'td class="column100 column1"', 'html':'${serverName}'},
+                {'<>':'td class="column100 column1"', 'html':'${clientID}@${serverName}'},
                 {'<>':'td class="column100 column2"', 'html':'${srcID}'},
                 {'<>':'td class="column100 column3"','html':'src:${srcConnection} dst:${dstConnection}'},
                 {'<>':'td class="column100 column4"','html':'${localAddress}:${localPort}'},
-                {'<>':'td class="column100 column5"','html':'${dstProtocol}://${dstAddr}:${dstPort}'}
+                {'<>':'td class="column100 column5"','html':'${dstProtocol}://${dstAddr}:${dstPort}'},
+                {'<>':'td class="column100 column6"','html':'${srcSentBytes}'},
+                {'<>':'td class="column100 column7"','html':'${dstSentBytes}'}
             ]};
             document.getElementById('monitor').innerHTML = (json2html.transform(result,t));
         });

@@ -18,6 +18,7 @@ module.exports = class wsTunnel {
         this.id = this.getID();
         this.chain = {
             srcID : this.id, 
+            clientID : this.headers.client,
             srcConnection : 1,
             dstConnection : 0, 
             serverName: this.serverName, 
