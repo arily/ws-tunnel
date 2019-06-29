@@ -42,7 +42,7 @@ var wsRelay = function(socket,remote,dest,uuid,user){
         c.on('close',(e) => {
             if (e === 1006){
                 c.terminate();
-                socket.removeListener('data', callback);
+                socket.removeListener('data', _=>{});
                 wsRelay(socket,remote,dest,uuid,user);
             } else {
                 socket.end();
