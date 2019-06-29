@@ -1,5 +1,6 @@
 module.exports = class wsServer{
     constructor (config,prefix,name = 'Proxy'){
+        this.log = require("../wstunnelconfig").wsServer.output;
         this.config = config;
         this.prefix = prefix;
         if (prefix.substring(prefix.length -1 ) == '/'){
@@ -22,7 +23,7 @@ module.exports = class wsServer{
         let port = url.port;
         let addr = url.hostname;
         if (this.connections.isset(uuid) === true){
-            console.log('uuid exists, recovering socket...');
+            if (this.log) console.log('uuid exists, recovering socket...');
             let wsTunnel = this.connections.get(uuid);
             wsTunnel.proxifier.srcReconnect(src);
         } else {
