@@ -12,6 +12,7 @@
             out_file : \"/var/logs/nova_out.log\",
             error_file : \"/var/logs/nova_error.log\",
             instances  : 1,
+            watch : true,
             exec_mode  : \"cluster\",
             env: {
                 NODE_ENV: \"production\"
@@ -25,6 +26,7 @@
             out_file : \"/var/logs/nova_out.log\",
             error_file : \"/var/logs/nova_error.log\",
             instances  : 2,
+            watch : true,
             exec_mode  : \"cluster\"
         }
     ]
