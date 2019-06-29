@@ -16,7 +16,7 @@
         {
             name: "Sock5_Server",
             max_memory_restart: "100M",
-            script: "./SockServer.js",
+            script: "./SocksServer.js",
             out_file: "/var/logs/nova_out.log",
             error_file: "/var/logs/nova_error.log",
             instances: 2,
