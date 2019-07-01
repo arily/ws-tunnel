@@ -13,9 +13,14 @@ const clientID = getUniqueID();
 var report = (chain) => {
     console.log('localhost:'.concat(chain.port),'<--->',chain.remote,'<--->',chain.dest,"(static)");
 };
-var wsRelay = function(socket,remote,dest,uuid,user){
-        var address = socket.address();
-        var c = new ws(remote.concat('/',dest),{headers:{uuid:uuid,client:user}});
+var wsRelay = function(socket,remote,dest,uuid,user,test_drop = false){
+        const address = socket.address();
+        const c = new ws(remote + '/' + dest,{headers:{uuid:uuid,client:user}});
+            if (test_drop) {
+                var timer = setTimeout(_=>{
+                    c.close(1001);
+                },5000);
+            }
         
             c.on('open',()=>{
                 socket.on('data',(data)=>{
@@ -23,7 +28,7 @@ var wsRelay = function(socket,remote,dest,uuid,user){
                         c.send(data);
                     } catch (error){
                         //console.log('Send to ws Error:',error);
-                        c.close(1006);
+                        c.close(1001);
                     }
                 });
                 c.on('message',(data) =>{
@@ -40,29 +45,35 @@ var wsRelay = function(socket,remote,dest,uuid,user){
 //    c.on('pong', ()=>console.log('pong'));
 
         c.on('close',(e) => {
-            if (e === 1006){
+            if ( e == 1001 || e == 1006){
                 c.terminate();
-                socket.removeListener('data', _=>{});
-                wsRelay(socket,remote,dest,uuid,user);
+//                socket.eventNames().forEach( e => {console.log(e,socket.listeners(e))}); //data close and error event will stacked
+                socket.removeAllListeners('data');
+                socket.removeAllListeners('close');
+                socket.removeAllListeners('error');
+                setImmediate(_=>{wsRelay(socket,remote,dest,uuid,user,test_drop)});
             } else {
                 socket.end();
             }
         });
-        socket.on('close', () => {
-            c.removeListener('message', _=>{});
+        socket.on('close', (e) => {
+            if (undefined !== timer){
+                clearTimeout(timer);
+            }
             if (c !== undefined && c.readyState === 1 ){
-                c.close();
+                c.close(1000);
             } else {
-                setInterval((c)=>{
+                setTimeout((c)=>{
                     if (c !== undefined){
-                        if (c.readyState === 1) c.close();
-                        else c.terminate();
+                        if (c.readyState === 1) c.close(1000);
+                        else c.terminate(1000);
                     }
                 },1000);
             }
         });
         c.on('error',(e)=>{
-            c.close(1006);
+//            c.close(1001);
+            return 1001;
         })
         socket.on('error',(e)=>{
             //console.log(e);
@@ -80,16 +91,16 @@ var wsRelay = function(socket,remote,dest,uuid,user){
         });
     }
 
-var createServer = (port,remote,dest) => {
-    var tcp = net.createServer((socket) =>{
-        wsRelay(socket,remote,dest,getUniqueID(),clientID);
+var createServer = (port,remote,dest,test_drop) => {
+    const tcp = net.createServer((socket) =>{
+        wsRelay(socket,remote,dest,getUniqueID(),clientID,test_drop);
     });
     tcp.listen(port);
 };
 var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
-    var c = new ws(remote.concat('/',dest));
+    const c = new ws(remote.concat('/',dest));
+    const local = new net.Socket();
     c.on('open',()=>{
-        var local = new net.Socket();
         local_connected = false;
         c.on('message',(data) => {
             if (!local_connected){
@@ -127,7 +138,7 @@ var createReverseRelayTCP = (protocol,localPort,localAddr,remote,dest)=>{
 var createServers = (array) =>{
     array.forEach((item) => {
         if (!item.reverse){
-            createServer(item.port,item.remote,item.dest);
+            createServer(item.port,item.remote,item.dest,item.test_drop);
         } else if (item.reverse) {
             url = new URL(item.localAddr);
             protocol = url.protocol;
@@ -141,7 +152,7 @@ var createServers = (array) =>{
 
 
 try {
-    var {patch} = require('./localtcplistenerconfig');
+    const    {patch} = require('./localtcplistenerconfig');
     createServers(patch);
     //http://blog.cuicc.com/blog/2017/03/26/nodejs-ECONNRESET/
     process.on('uncaughtException', function(err) {

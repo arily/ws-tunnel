@@ -60,7 +60,7 @@ module.exports = class wsTunnelProxifier{
             this.closeDst();
         });
         src.on('error',e =>{
-            this.closeSrc(1006);
+            this.closeSrc(1001);
         })
         dst.on('connect',() =>{
             this.chain.dstSentBytes = this.chain.srcSentBytes = 0;
@@ -142,7 +142,7 @@ module.exports = class wsTunnelProxifier{
     }
     connectionInterrupted(socket){
         if (socket === 'src'){
-            this.srcOnClose(1006);
+            this.srcOnClose(1001);
         }
     }
     alive(socket){
@@ -155,7 +155,7 @@ module.exports = class wsTunnelProxifier{
     srcOnClose(e){
         this.chain.srcConnection = 0;
         this.report_status(this.chain);
-        if (e === 1006){
+        if (e === 1001){
             this.suspend(this.dst,this.config.reconnectWindow);
         } else {
             if (this.chain.dstConnection === 1){
