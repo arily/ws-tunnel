@@ -30,7 +30,8 @@ module.exports = class wsTunnelProxifier{
         }
     };
 
-    constructor (src,dst,addr,req,srcOnMessageEventName,dstOnMessageEventName,srcSendMethodName,dstSendMethodName,chain,container){
+    constructor (src,dst,addr,req,names,chain,container){
+        const {srcOnMessageEventName,dstOnMessageEventName,srcSendMethodName,dstSendMethodName,srcCloseName,dstCloseName} = names;
         this.src = src;
         this.dst = dst;
         this.addr = addr;
@@ -39,6 +40,8 @@ module.exports = class wsTunnelProxifier{
         this.dstOnMessageEventName = dstOnMessageEventName;
         this.srcSendMethodName = srcSendMethodName;
         this.dstSendMethodName = dstSendMethodName;
+        this.srcCloseName = srcCloseName;
+        this.dstCloseName = dstCloseName;
         this.chain = chain;
         this.container = container;
         this.config = require('../wstunnelconfig').Proxifier;
@@ -170,10 +173,10 @@ module.exports = class wsTunnelProxifier{
         this.report_status(this.chain);
     }
     closeSrc(e = 1000){
-        this.src.close(e);
+        this.src[`${this.srcCloseName}`](e);
     }
     closeDst(e = 1000){
 
-        this.dst.end();
+        this.dst[`${this.dstCloseName}`]();
     }
 }
