@@ -36,52 +36,59 @@ module.exports = class wsTunnel {
         var dst = new net.Socket();
         dst.connect(port, addr);
         let wsTunnelProxifier = require('./wsTunnelProxifier');
-        this.proxifier = new wsTunnelProxifier(src,dst,addr,req,'message','data','send','write',this.chain,this.server.connections);
+        this.proxifier = new wsTunnelProxifier(src,dst,addr,req,{
+            srcOnMessageEventName:'message',
+            dstOnMessageEventName:'data',
+            srcSendMethodName:'send',
+            dstSendMethodName:'write',
+            srcCloseName:'close',
+            dstCloseName:'end'
+        },this.chain,this.server.connections);
     }
-    tcpold(src,port,addr,req){
-        this.net = require("net");
-        var dst = new this.net.Socket();
-        dst.connect(port, addr);
-        dst.on('connect',() =>{
-            this.chain.dstConnection = 1;
-            this.chain.localPort = dst.localPort;
-            this.chain.localAddress = dst.localAddress;
-            report_status(this.chain);
-        });
-        
-        src.on('error',(e) =>{
-            console.log(e);
-            src.close();
-        });
-        dst.on('error',(e) =>{
-            console.log(e);
-            src.close();
-            dst.end();
-        });
-    
-        src.on('message',(data) => {
-            dst.write(data);
-        });
-        dst.on('data',(data) => {
-            src.send(data);
-        });
-        //src.pipe(dst);
-        //dst.pipe(src);
-
-        src.on('close',() => {
-            this.chain.srcConnection = 0;
-            dst.end();
-            report_status(this.chain);
-            delete this.chain.srcID;
-        });
-        dst.on('close', () => {
-            this.chain.dstConnection = 0;
-            delete this.chain.localPort;
-            delete this.chain.localAddress;
-            src.close();
-            report_status(this.chain);
-        });
-    }
+//    tcpold(src,port,addr,req){
+//        this.net = require("net");
+//        var dst = new this.net.Socket();
+//        dst.connect(port, addr);
+//        dst.on('connect',() =>{
+//            this.chain.dstConnection = 1;
+//            this.chain.localPort = dst.localPort;
+//            this.chain.localAddress = dst.localAddress;
+//            report_status(this.chain);
+//        });
+//        
+//        src.on('error',(e) =>{
+//            console.log(e);
+//            src.close();
+//        });
+//        dst.on('error',(e) =>{
+//            console.log(e);
+//            src.close();
+//            dst.end();
+//        });
+//    
+//        src.on('message',(data) => {
+//            dst.write(data);
+//        });
+//        dst.on('data',(data) => {
+//            src.send(data);
+//        });
+//        //src.pipe(dst);
+//        //dst.pipe(src);
+//
+//        src.on('close',() => {
+//            this.chain.srcConnection = 0;
+//            dst.end();
+//            report_status(this.chain);
+//            delete this.chain.srcID;
+//        });
+//        dst.on('close', () => {
+//            this.chain.dstConnection = 0;
+//            delete this.chain.localPort;
+//            delete this.chain.localAddress;
+//            src.close();
+//            report_status(this.chain);
+//        });
+//    }
     udp(src,port,addr,req){
         var dgram = require('dgram');
         var dst = dgram.createSocket('udp4');
