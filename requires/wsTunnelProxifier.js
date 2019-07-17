@@ -59,7 +59,6 @@ module.exports = class wsTunnelProxifier{
         this.closeDst = this.closeDst.bind(this);
         
         dst.on('error',(e) =>{
-            //console.log(e);
             this.closeDst();
         });
         src.on('error',e =>{
