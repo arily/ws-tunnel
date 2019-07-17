@@ -1,22 +1,9 @@
 {
     apps: [
         {
-            name: "wstunnelHttpServer",
-            max_memory_restart: "300M",
-            script: "./wstunnel_with_http_server.js",
-            //out_file: "/var/logs/nova_out.log",
-            //error_file: "/var/logs/nova_error.log",
-            instances: 1,
-            watch: true,
-            exec_mode: "cluster",
-            env: {
-                NODE_ENV: "production"
-            }
-        },
-        {
-            name: "Sock5_Server",
+            name: "LocalListener",
             max_memory_restart: "100M",
-            script: "./SocksServer.js",
+            script: "./localtcplistener.js",
             //out_file: "/var/logs/nova_out.log",
             //error_file: "/var/logs/nova_error.log",
             instances: 2,
