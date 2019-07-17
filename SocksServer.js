@@ -8,4 +8,6 @@ srv.listen(10800, 'localhost', function() {
   console.log('SOCKS server listening on port 10800');
 });
 
-srv.useAuth(socks.auth.None());
+srv.useAuth(socks.auth.UserPassword(function(user, password, cb) {
+  cb(user === 'nodejs' && password === 'rules!');
+}));
