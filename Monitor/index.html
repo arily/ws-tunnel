@@ -58,7 +58,7 @@
     return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
 };
     window.onload = setInterval(function(){
-        $.getJSON('./monitor',(chains)=>{
+        $.getJSON('../monitor',(chains)=>{
             for (var key in chains) {
                 switch(chains[key].srcConnection){
                     case 0 :
