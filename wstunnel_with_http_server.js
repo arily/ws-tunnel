@@ -123,7 +123,7 @@ try{
     
     
     
-    server.listen(port, function() {
+    server.listen(port,'0.0.0.0', function() {
         console.log((new Date()) + ' Server is listening on port',port);
     });
 

@@ -36,14 +36,22 @@ module.exports = class wsTunnel {
         var dst = new net.Socket();
         dst.connect(port, addr);
         let wsTunnelProxifier = require('./wsTunnelProxifier');
-        this.proxifier = new wsTunnelProxifier(src,dst,addr,req,{
-            srcOnMessageEventName:'message',
-            dstOnMessageEventName:'data',
-            srcSendMethodName:'send',
-            dstSendMethodName:'write',
-            srcCloseName:'close',
-            dstCloseName:'end'
-        },this.chain,this.server.connections);
+        this.proxifier = new wsTunnelProxifier(
+            src,
+            dst,
+            addr,
+            req,
+            {
+                srcOnMessageEventName:'message',
+                dstOnMessageEventName:'data',
+                srcSendMethodName:'send',
+                dstSendMethodName:'write',
+                srcCloseName:'close',
+                dstCloseName:'end'
+            },
+            this.chain,
+            this.server.connections
+        );
     }
 //    tcpold(src,port,addr,req){
 //        this.net = require("net");
