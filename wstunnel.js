@@ -14,7 +14,7 @@ try{
         wspath = wspath.substring( 0, wspath.length-1 );
     }
     var s = new wsTunnelServer({
-        noServer: noServer,
+        port:port,
         clientTracking: 0,
     },
                                wspath);
