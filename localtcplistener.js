@@ -41,13 +41,11 @@ var wsRelay = function(socket,remote,dest,uuid,user,test_drop = false){
                     }
                 });
             });
-//        c.on('ping',()=> console.log('ping'));
-//    c.on('pong', ()=>console.log('pong'));
+
 
         c.on('close',(e) => {
             if ( e == 1001 || e == 1006){
                 c.terminate();
-//                socket.eventNames().forEach( e => {console.log(e,socket.listeners(e))}); //data close and error event will stacked
                 socket.removeAllListeners('data');
                 socket.removeAllListeners('close');
                 socket.removeAllListeners('error');

@@ -30,20 +30,22 @@ module.exports = class wsTunnelProxifier{
         }
     };
 
-    constructor (src,dst,addr,req,names,chain,container){
-        const {srcOnMessageEventName,dstOnMessageEventName,srcSendMethodName,dstSendMethodName,srcCloseName,dstCloseName} = names;
+    constructor (src,dst,addr,req,names,chain,container,type = 'tcp',port = undefined){
+//        const {srcOnMessageEvent,dstOnMessageEvent,srcSendMethod,dstSendMethod,srcClose,dstClose} = names;
         this.src = src;
         this.dst = dst;
         this.addr = addr;
         this.req = req;
-        this.srcOnMessageEventName = srcOnMessageEventName;
-        this.dstOnMessageEventName = dstOnMessageEventName;
-        this.srcSendMethodName = srcSendMethodName;
-        this.dstSendMethodName = dstSendMethodName;
-        this.srcCloseName = srcCloseName;
-        this.dstCloseName = dstCloseName;
+/*        this.srcOnMessageEvent = srcOnMessageEventName;
+        this.dstOnMessageEvent = dstOnMessageEventName;
+        this.srcSendMethod = srcSendMethodName;
+        this.dstSendMethod = dstSendMethodName;
+        this.srcClose = srcCloseName;
+        this.dstClose = dstCloseName;*/
+        this.names = names;
         this.chain = chain;
         this.container = container;
+        this.port = port;
         this.config = require('../wstunnelconfig').Proxifier;
         
         this.getSrc = this.getSrc.bind(this);
@@ -64,13 +66,26 @@ module.exports = class wsTunnelProxifier{
         src.on('error',e =>{
             this.closeSrc(1001);
         })
-        dst.on('connect',() =>{
-            this.chain.dstSentBytes = this.chain.srcSentBytes = 0;
-            this.chain.dstConnection = 1;
-            this.chain.localPort = dst.localPort;
-            this.chain.localAddress = dst.localAddress;
-            this.report_status(this.chain);
-        });
+        //tcp
+        if (type === 'tcp'){
+            dst.on('connect',() =>{
+                this.chain.dstSentBytes = this.chain.srcSentBytes = 0;
+                this.chain.dstConnection = 1;
+                this.chain.localPort = dst.localPort;
+                this.chain.localAddress = dst.localAddress;
+                this.report_status(this.chain);
+            });
+        } else if (type === 'udp'){
+            dst.on('listening',()=>{
+                this.chain.dstSentBytes = this.chain.srcSentBytes = 0;
+                this.chain.dstConnection = 1;
+                this.chain.localPort = dst.address().port;
+                this.chain.localAddress = dst.address().address;
+                this.chain.dstConnection = 1;
+                this.report_status(this.chain);
+            });
+        }
+        
         src.on('close',(e) => {
             this.srcOnClose(e);
         })
@@ -119,14 +134,14 @@ module.exports = class wsTunnelProxifier{
         this.resume(this.dst);
     }
     tunnel(){
-        this.src.removeListener(`${this.srcOnMessageEventName}`,()=>{});
-        this.dst.removeListener(`${this.dstOnMessageEventName}`,()=>{});
-        this.src.on(`${this.srcOnMessageEventName}`,(data) => {
-            this.dst[`${this.dstSendMethodName}`](data);
+        this.src.removeListener(`${this.names.srcOnMessageEvent}`,()=>{});
+        this.dst.removeListener(`${this.names.dstOnMessageEvent}`,()=>{});
+        this.src.on(`${this.names.srcOnMessageEvent}`,(data) => {
+            this.dst[`${this.names.dstSendMethod}`](data,this.port);
             this.chain.dstSentBytes += data.byteLength;
         });
-        this.dst.on(`${this.dstOnMessageEventName}`,(data) => {
-            this.src[`${this.srcSendMethodName}`](data);
+        this.dst.on(`${this.names.dstOnMessageEvent}`,(data) => {
+            this.src[`${this.names.srcSendMethod}`](data);
             this.chain.srcSentBytes += data.byteLength;
         });
     }
@@ -172,10 +187,10 @@ module.exports = class wsTunnelProxifier{
         this.report_status(this.chain);
     }
     closeSrc(e = 1000){
-        this.src[`${this.srcCloseName}`](e);
+        this.src[`${this.names.srcClose}`](e);
     }
     closeDst(e = 1000){
 
-        this.dst[`${this.dstCloseName}`]();
+        this.dst[`${this.names.dstClose}`]();
     }
 }
