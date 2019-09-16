@@ -1,12 +1,12 @@
 # ws-tunnel
 
-*Only TCP section are currently working.
+*Only TCP and udp over tcp are currently working.
 ```
 npm install
 (npm install pm2 -g) optional
 node wstunnel.js you rock.
 ```
-Server requires almost no configure.
+Server requires no configure.
 
 ```
 var s = new wsServer(config for normal ws server,path);
