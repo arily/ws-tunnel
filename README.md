@@ -20,7 +20,7 @@ Server requires no configure except ⬇️
             }
         ];
 ```
-⬆️an example: use prefab://myname instead of tcp://localhsot:22 to hide your desired 
+⬆️an example: use prefab://myname instead of tcp://localhsot:22 to hide your destination
 
 LocalTCPListener -- prototype proxy client
 forward tcp://localhost:5000 to tcp://remote:5004 via ws://localhost:5001
