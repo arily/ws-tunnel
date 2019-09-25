@@ -7,7 +7,7 @@ require('console-stamp')(console, '[HH:MM:ss.l]');
 const wsTunnelServer = require('./requires/wsServer');
 
 try{
-    var { port, output, outputLevel, wspath } = require('./wstunnelconfig').wsServer;
+    var { port, output, outputLevel, wspath } = require('./config/wstunnel').wsServer;
     report = output;
     logLevel = outputLevel;
     if (wspath[wspath.length-1] == '/'){

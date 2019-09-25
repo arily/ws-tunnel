@@ -150,7 +150,7 @@ var createServers = (array) =>{
 
 
 try {
-    const {patch} = require('./localtcplistenerconfig');
+    const {patch} = require('./config/local.js');
     createServers(patch);
     //http://blog.cuicc.com/blog/2017/03/26/nodejs-ECONNRESET/
     process.on('uncaughtException', function(err) {

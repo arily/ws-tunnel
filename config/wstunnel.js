@@ -2,7 +2,7 @@ module.exports = {
     wsServer : {
         port        : parseInt(process.env.PORT)        || 5001,
         output      : process.env.OUTPUT == 'TRUE'      || false,
-        outputLevel : parseInt(process.env.OUTPUTLEVEL) || 3,
+        outputLevel : parseInt(process.env.OUTPUTLEVEL) || 1,
         wspath      : process.env.WSPATH                || '/'
     },
     Proxifier : {

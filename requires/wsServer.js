@@ -1,6 +1,6 @@
 module.exports = class wsServer{
     constructor (config,prefix,name = 'Proxy'){
-        this.log = require("../wstunnelconfig").wsServer.output;
+        this.log = require("../config/wstunnel").wsServer.output;
         this.config = config;
         this.prefix = prefix;
         if (prefix.substring(prefix.length -1 ) == '/'){
