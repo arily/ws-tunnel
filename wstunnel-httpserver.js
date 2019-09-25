@@ -15,7 +15,7 @@ try {
 		output,
 		outputLevel,
 		wspath
-	} = require('./wstunnelconfig').wsServer;
+	} = require('./config/wstunnel').wsServer;
 	report = output;
 	logLevel = outputLevel;
 	let noServer = true;
@@ -34,12 +34,8 @@ try {
 			case wspath:
 				break;
 			case '/monitor':
-				response.writeHead(200, {
-					'Content-Type': 'application/json',
-					"Access-Control-Allow-Origin": "*"
-				});
 				chains = s.connections.getChains();
-				response.end(JSON.stringify(chains));
+				response_success(request,response,'application/json', JSON.stringify(chains),200,this.caller);
 				break;
 			default:
 				mini_static_server(request, response);
@@ -71,7 +67,7 @@ try {
 }
 
 function mini_static_server(request, response) {
-	let documentRoot = '.'; //这里是文件路径这里表示同级目录下我有个http2文件夹
+	let documentRoot = './public'; 
 	let file = documentRoot + request.url;
 	if (file[file.length - 1] === '/') {
 		file = file.substring(0, file.length - 1); //remove last '/'
@@ -94,7 +90,7 @@ function mini_static_server(request, response) {
 						ct = mime.lookup(path);
 						data = fs.readFileSync(path);
 						if (!ct === false) {
-							response_200(request, response, ct, data);
+							response_success(request, response, ct, data,200,path);
 						}
 						return true;
 					} else {
@@ -108,7 +104,7 @@ function mini_static_server(request, response) {
 			} else {
 				ct = mime.lookup(file);
 				if (!ct === false) {
-					response_200(request, response, ct, data);
+					response_success(request, response, ct, data,200,file);
 				} else {
 					response.end('unknown MIME Type.')
 				}
@@ -124,17 +120,32 @@ function response_404(request, response) {
 	});
 	response.write('<h1>404错误</h1><p>你要找的页面不存在</p>');
 	response.end();
+    if (logLevel <= 2 ){
+        console.log('[mini-static-server] [404] '.concat(request.url))
+    }
 }
 
-function response_200(request, response, mime, data, httpcode = 200) {
+function response_success(request, response, mime, data, httpcode = 200,file = undefined) {
 	response.writeHeader(httpcode, {
 		'content-type': mime
 	});
 	response.write(data);
 	response.end();
+    if (logLevel <= 1 ){
+        if (file !== undefined ){
+            substr = ' -> '.concat(file);
+        } else {
+            substr = '';
+        }
+        console.log('[mini-static-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(substr));
+    }
 }
 
-function location(response, location, httpcode = 301) {
+function location(response, location, httpcode = 301,) {
+    if (logLevel <= 1 ){
+
+        console.log('[mini-static-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(' -> ').concat(location));
+    }
 	response.writeHeader(httpcode, {
 		"Location": location,
 	});
