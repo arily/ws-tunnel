@@ -1,14 +1,14 @@
 module.exports = class wsConnectionContainer {
     constructor() {
         this.container = {};
-        this.append = this.append.bind(this);
-        this.get = this.get.bind(this);
-        this.isset = this.isset.bind(this);
-        this.destroy = this.destroy.bind(this);
-        this.getChains = this.getChains.bind(this);
+        // this.append = this.append.bind(this);
+        // this.get = this.get.bind(this);
+        // this.isset = this.isset.bind(this);
+        // this.destroy = this.destroy.bind(this);
+        // this.getChains = this.getChains.bind(this);
     }
-    append(Tunnel) {
-        this.container[Tunnel.id] = Tunnel;
+    append(tunnel) {
+        this.container[tunnel.id] = tunnel;
     }
     get(id) {
         return this.container[id];
