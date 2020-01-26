@@ -148,7 +148,7 @@ module.exports = class wsTunnel {
         report_status(this.chain);
     }
     prefab(src,port,addr,req){
-        let myroute = require('../wstunnelconfig').Prefab;
+        let myroute = require('../config/wstunnel').Prefab;
         let real_connection = undefined;
         let real = undefined;
         myroute.some((e) => {
