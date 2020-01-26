@@ -11,7 +11,7 @@ var getUniqueID = function() {
 const clientID = getUniqueID();
 
 var report = (chain) => {
-    console.log('localhost:'.concat(chain.port), '<--->', chain.remote, '<--->', chain.dest, "(static)");
+    console.info('localhost:'.concat(chain.port), '->', chain.remote, '->', chain.dest);
 };
 var wsRelay = function(socket, remote, dest, uuid, user, test_drop = false) {
     const address = socket.address();

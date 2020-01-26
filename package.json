@@ -13,6 +13,7 @@
     "console-stamp": "^0.2.9",
     "dgram": "^1.0.1",
     "http": "0.0.0",
+    "lib-ws-tunnel": "github:arily/lib-ws-tunnel",
     "mime-types": "^2.1.24",
     "net": "^1.0.2",
     "path": "^0.12.7",

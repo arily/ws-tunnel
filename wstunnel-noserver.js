@@ -14,10 +14,11 @@ try {
         wspath = wspath.substring(0, wspath.length - 1);
     }
     const s = new wsTunnelServer({
-            port: port,
-            clientTracking: 0,
-        },
-        wspath);
+        port: port,
+        clientTracking: 0,
+        path: wspath,
+        proxyServerName: 'arily'
+    });
 } catch (error) {
     if (logLevel > 1) console.log(error);
 }

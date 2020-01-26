@@ -7,15 +7,17 @@ const mime = require('mime-types');
 //https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
 require('console-stamp')(console, '[HH:MM:ss.l]');
 
-const wsTunnelServer = require('./requires/wsServer');
+const lib = require('lib-ws-tunnel');
+const wsServer = require('lib-ws-tunnel').WsServer;
 
 try {
+	const conf = require('./config/wstunnel');
     let {
         port,
         output,
         outputLevel,
         wspath
-    } = require('./config/wstunnel').wsServer;
+    } = conf.wsServer;
     report = output;
     logLevel = outputLevel;
     const match = require('url-match-patterns').
@@ -23,11 +25,15 @@ try {
     if (wspath[wspath.length - 1] == '/') {
         wspath = wspath.substring(0, wspath.length - 1);
     }
-    const s = new wsTunnelServer({
-            noServer: true,
-            clientTracking: 0,
-        },
-        wspath);
+    const s = new wsServer({
+        noServer: true,
+        clientTracking: 0,
+    }, {
+    	prefabRoute: conf.Prefab,
+    	proxifier: conf.Proxifier,
+        path: wspath,
+        proxyServerName: 'arily'
+    });
     const server = http.createServer(function(request, response) {
         switch (request.url) {
             case wspath:
@@ -42,10 +48,9 @@ try {
         access_log(request);
     });
 
-    server.listen(port,
-        function() {
-            console.log((new Date()) + ' Server is listening on port', port);
-        });
+    server.listen(port, function() {
+        console.info((new Date()) + ' Server is listening on port', port);
+    });
 
     server.on('upgrade', function upgrade(request, socket, head) {
         const pathname = url.parse(request.url).pathname;
