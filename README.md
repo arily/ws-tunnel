@@ -12,7 +12,7 @@ node wstunnel.js you rock.
 var s = new wsServer(config for normal ws server,path);
 
 ```
-Server requires no configure except ⬇️
+Server requires no configuration except ⬇️
 ```
  myroute = [ 
             {'dial' : 'myname', 
