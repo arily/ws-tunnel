@@ -31,34 +31,27 @@ module.exports = class wsTunnelProxifier{
     };
 
     constructor (src,dst,addr,req,names,chain,container,type = 'tcp',port = undefined){
-//        const {srcOnMessageEvent,dstOnMessageEvent,srcSendMethod,dstSendMethod,srcClose,dstClose} = names;
         this.src = src;
         this.dst = dst;
         this.addr = addr;
         this.req = req;
-/*        this.srcOnMessageEvent = srcOnMessageEventName;
-        this.dstOnMessageEvent = dstOnMessageEventName;
-        this.srcSendMethod = srcSendMethodName;
-        this.dstSendMethod = dstSendMethodName;
-        this.srcClose = srcCloseName;
-        this.dstClose = dstCloseName;*/
         this.names = names;
         this.chain = chain;
         this.container = container;
         this.port = port;
-        this.config = require('../wstunnelconfig').Proxifier;
+        this.config = require('../config/wstunnel').Proxifier;
         
-        this.getSrc = this.getSrc.bind(this);
-        this.getDst = this.getDst.bind(this);
-        this.suspend = this.suspend.bind(this);
-        this.resume = this.resume.bind(this);
-        this.wsKeepalive = this.wsKeepalive.bind(this);
-        this.tunnel = this.tunnel.bind(this);
-        this.wsKeepalive = this.wsKeepalive.bind(this);
-        this.srcOnClose = this.srcOnClose.bind(this);
-        this.dstOnClose = this.dstOnClose.bind(this);
-        this.closeSrc = this.closeSrc.bind(this);
-        this.closeDst = this.closeDst.bind(this);
+        // this.getSrc = this.getSrc.bind(this);
+        // this.getDst = this.getDst.bind(this);
+        // this.suspend = this.suspend.bind(this);
+        // this.resume = this.resume.bind(this);
+        // this.wsKeepalive = this.wsKeepalive.bind(this);
+        // this.tunnel = this.tunnel.bind(this);
+        // this.wsKeepalive = this.wsKeepalive.bind(this);
+        // this.srcOnClose = this.srcOnClose.bind(this);
+        // this.dstOnClose = this.dstOnClose.bind(this);
+        // this.closeSrc = this.closeSrc.bind(this);
+        // this.closeDst = this.closeDst.bind(this);
         
         dst.on('error',(e) =>{
             this.closeDst();
