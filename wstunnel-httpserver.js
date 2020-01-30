@@ -3,12 +3,18 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs'); //引入文件读取模块
 const mime = require('mime-types');
+const match = require('url-match-patterns').default;
 
 //https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
 require('console-stamp')(console, '[HH:MM:ss.l]');
 
 const lib = require('lib-ws-tunnel');
 const wsServer = require('lib-ws-tunnel').WsServer;
+
+const static = require('./MiniStaticServer');
+const fileServer = new static({
+    root: `${__dirname}/public`
+})
 
 try {
 	const conf = require('./config/wstunnel');
@@ -20,8 +26,6 @@ try {
     } = conf.wsServer;
     report = output;
     logLevel = outputLevel;
-    const match = require('url-match-patterns').
-    default;
     if (wspath[wspath.length - 1] == '/') {
         wspath = wspath.substring(0, wspath.length - 1);
     }
@@ -38,14 +42,14 @@ try {
         switch (request.url) {
             case wspath:
                 break;
-            case '/monitor':
+            case '/api/connections':
                 chains = s.connections.getChains();
-                response_success(request, response, 'application/json', JSON.stringify(chains), 200, this.caller);
+                fileServer.response_success(request, response, 'application/json', JSON.stringify(chains), 200, this.caller);
                 break;
             default:
-                mini_static_server(request, response);
+                fileServer.request(request, response);
         }
-        access_log(request);
+        fileServer.access_log(request);
     });
 
     server.listen(port, function() {
@@ -65,94 +69,4 @@ try {
     });
 } catch (error) {
     if (logLevel > 1) console.log(error);
-}
-
-function mini_static_server(request, response) {
-    let documentRoot = './public';
-    let file = documentRoot + request.url;
-    if (file[file.length - 1] === '/') {
-        file = file.substring(0, file.length - 1); //remove last '/'
-    }
-    fs.readFile(file,
-        function(err, data) {
-            if (err) {
-                result = ['index.html', 'default.html', 'fallback.html'].some(filename => {
-                    path = file + '/' + filename;
-                    if (fs.existsSync(path)) {
-                        //-----redirect /A to /A/  to fix relative html file path problem (/a ... b/c -> /a/c) to (/a/ ... b/c -> a/b/c)
-                        if (request.url[request.url.length - 1] !== '/') {
-                            response.writeHeader(301, {
-                                'Location': request.url + '/',
-                            });
-                            response.end();
-                            return true;
-                        }
-                        //-----redirect end.
-                        ct = mime.lookup(path);
-                        data = fs.readFileSync(path);
-                        if (!ct === false) {
-                            response_success(request, response, ct, data, 200, path);
-                        }
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-
-                if (!result) {
-                    response_404(request, response);
-                }
-            } else {
-                ct = mime.lookup(file);
-                if (!ct === false) {
-                    response_success(request, response, ct, data, 200, file);
-                } else {
-                    response.end('unknown MIME Type.')
-                }
-
-            }
-        }
-    );
-}
-
-function response_404(request, response) {
-    response.writeHeader(404, {
-        'content-type': 'text/html;charset="utf-8"'
-    });
-    response.write('<h1>404错误</h1><p>你要找的页面不存在</p>');
-    response.end();
-    if (logLevel <= 2) {
-        console.log('[mini-static-server] [404] '.concat(request.url))
-    }
-}
-
-function response_success(request, response, mime, data, httpcode = 200, file = undefined) {
-    response.writeHeader(httpcode, {
-        'content-type': mime
-    });
-    response.write(data);
-    response.end();
-    if (logLevel <= 1) {
-        if (file !== undefined) {
-            substr = ' -> '.concat(file);
-        } else {
-            substr = '';
-        }
-        console.log('[mini-static-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(substr));
-    }
-}
-
-function location(response, location, httpcode = 301, ) {
-    if (logLevel <= 1) {
-
-        console.log('[mini-static-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(' -> ').concat(location));
-    }
-    response.writeHeader(httpcode, {
-        "Location": location,
-    });
-    response.end();
-}
-
-function access_log(request) {
-
 }
