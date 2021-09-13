@@ -1,9 +1,9 @@
-{
+module.exports = {
     apps: [
         {
             name: "wstunnelHttpServer",
             max_memory_restart: "300M",
-            script: "./wstunnel-httpserver.js",
+            script: "npm start server",
             //out_file: "/var/logs/nova_out.log",
             //error_file: "/var/logs/nova_error.log",
             instances: 1,
@@ -16,7 +16,7 @@
         {
             name: "Sock5_Server",
             max_memory_restart: "100M",
-            script: "./SocksServer.js",
+            script: "npm start socks5Server",
             //out_file: "/var/logs/nova_out.log",
             //error_file: "/var/logs/nova_error.log",
             instances: 2,

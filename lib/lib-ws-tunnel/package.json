@@ -1,0 +1,19 @@
+{
+  "name": "lib-ws-tunnel",
+  "version": "0.4.8",
+  "description": "lib for ws-tunnel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "arily",
+  "license": "ISC",
+  "dependencies": {
+    "dgram": "^1.0.1",
+    "net": "^1.0.2",
+    "path": "^0.12.7",
+    "url": "^0.11.0",
+    "ws": "^7.0.1"
+  }
+}

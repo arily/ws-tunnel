@@ -1,12 +1,12 @@
-{
+module.exports = {
     apps: [
         {
             name: "LocalListener",
             max_memory_restart: "100M",
-            script: "./localtcplistener.js",
+            script: "npm start client",
             //out_file: "/var/logs/nova_out.log",
             //error_file: "/var/logs/nova_error.log",
-            instances: 2,
+            instances: 1,
             watch: true,
             exec_mode: "cluster"
         }

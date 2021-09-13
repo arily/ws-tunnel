@@ -1,111 +1,134 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-		<title>Connection Monitor</title>
-		<meta name="description" content="Sticky Table Headers Revisited: Creating functional and flexible sticky table headers" />
-		<meta name="keywords" content="Sticky Table Headers Revisited" />
-		<meta name="author" content="Codrops" />
-		<link rel="shortcut icon" href="../favicon.ico">
-		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
-		<link rel="stylesheet" type="text/css" href="css/demo.css" />
-		<link rel="stylesheet" type="text/css" href="css/component.css" />
-        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Inconsolata|Roboto+Mono&display=swap" rel="stylesheet">
-		<!--[if IE]>
-  		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-	</head>
-	<body>
-		<div class="container">
-			<!-- Top Navigation -->
-			
-			<div class="component">
-				<table class="">
-						<thead>
-							<tr>
-								<th scope="col">Client</th>
-								<th scope="col">Server</th>
-								<th scope="col">Connection ID</th>
-								<th scope="col">Status</th>
-								<th scope="col">Local</th>
-								<th scope="col">Destination</th>
-								<th colspan="2">Traffic</th>
-							</tr>
-						</thead>
-					<tbody id='monitor'>
-						
-					</tbody>
-				</table>
-		      </div>
-        </div>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
-		<script src="js/jquery.stickyheader.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
-<script>
-    function getReadableFileSizeString(fileSizeInBytes) {
-    var i = -1;
-    var byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
-    do {
-        fileSizeInBytes = fileSizeInBytes / 1000;
-        i++;
-    } while (fileSizeInBytes > 1000);
 
-    return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
-};
-    window.onload = setInterval(function(){
-        $.getJSON('../api/connections',(chains)=>{
-            for (var key in chains) {
-                switch(chains[key].srcConnection){
-                    case 0 :
-                        chains[key].srcConnection = '<font style="opacity: 0.5;"><---></font>';
-                        break;
-                    case 1 :
-                        chains[key].srcConnection = '<font style="color:green"><---></font>';
-                        break;
-                    case -1 :
-                        chains[key].srcConnection = '<font style="color:#F39C12"><---></font>';
-                        break;
-                    default:
-                        chains[key].srcConnection = '<font style="color:red"><-?-></font>';
-                }
-                switch(chains[key].dstConnection){
-                    case 0 :
-                        chains[key].dstConnection = '<font style="opacity: 0.5;"><---></font>';
-                        break;
-                    case 1 :
-                        chains[key].dstConnection = '<font style="color:green"><---></font>';
-                        break;
-                    case -1 :
-                        chains[key].dstConnection = '<font style="color:#F39C12"><---></font>';
-                        break;
-                    default:
-                        chains[key].dstConnection = '<font style="color:red"><-?-></font>';
-                }
-                chains[key].srcSentBytes = getReadableFileSizeString(chains[key].srcSentBytes);
-                chains[key].dstSentBytes = getReadableFileSizeString(chains[key].dstSentBytes);
-            }
-            var result = Object.keys(chains).map(function(key) {
-                return chains[key];
-            });
-//            console.log(result);
-            var t = {'<>':'tr','html':[
-                {'<>':'td', 'html':'${clientID}'},
-                {'<>':'td', 'html':'${serverName}'},
-                {'<>':'td', 'html':'${srcID}'},
-                {'<>':'td','html':'S${srcConnection}${serverName}${dstConnection}D'},
-                {'<>':'td','html':'${localAddress}:${localPort}'},
-                {'<>':'td','html':'${dstProtocol}://${dstAddr}:${dstPort}'},
-                {'<>':'td','html':'↑${srcSentBytes}'},
-                {'<>':'td','html':'↓${dstSentBytes}'}
-            ]};
-            document.getElementById('monitor').innerHTML = (json2html.transform(result,t));
-        });
-    },1000);
-</script>
-	</body>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connection Monitor</title>
+  <meta name="description" content="active connection monitor" />
+  <meta name="keywords" content="Sticky Table Headers Revisited" />
+  <meta name="author" content="Codrops" />
+  <link rel="shortcut icon" href="../favicon.ico" />
+  <link rel="stylesheet" type="text/css" href="css/normalize.css" />
+  <link rel="stylesheet" type="text/css" href="css/demo.css" />
+  <link rel="stylesheet" type="text/css" href="css/component.css" />
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Roboto+Mono&display=swap" rel="stylesheet" />
+  <!--[if IE]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+  <div class="container">
+    <!-- Top Navigation -->
+
+    <div class="component">
+      <table class="">
+        <thead>
+          <tr>
+            <th scope="col">Client</th>
+            <th scope="col">Server</th>
+            <th scope="col">Connection ID</th>
+            <th scope="col">Status</th>
+            <th scope="col">Local</th>
+            <th scope="col">Destination</th>
+            <th colspan="2">Traffic</th>
+          </tr>
+        </thead>
+        <tbody id="monitor"></tbody>
+      </table>
+    </div>
+  </div>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script
+    src="//cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+  <script src="js/jquery.stickyheader.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+  <script>
+/* eslint-disable no-template-curly-in-string */
+function getReadableFileSizeString (fileSizeInBytes) {
+  let i = -1
+  const byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB']
+  do {
+    fileSizeInBytes = fileSizeInBytes / 1000
+    i++
+  } while (fileSizeInBytes > 1000)
+
+  return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i]
+}
+window.onload = setInterval(function () {
+  $.getJSON('../api/connections', (chains) => {
+    for (const key in chains) {
+      switch (chains[key].srcConnection) {
+        case 0:
+          chains[key].srcConnection =
+                '<font style="opacity: 0.5;"><---></font>'
+          break
+        case 1:
+          chains[key].srcConnection =
+                '<font style="color:green"><---></font>'
+          break
+        case -1:
+          chains[key].srcConnection =
+                '<font style="color:#F39C12"><---></font>'
+          break
+        default:
+          chains[key].srcConnection =
+                '<font style="color:red"><-?-></font>'
+      }
+      switch (chains[key].dstConnection) {
+        case 0:
+          chains[key].dstConnection =
+                '<font style="opacity: 0.5;"><---></font>'
+          break
+        case 1:
+          chains[key].dstConnection =
+                '<font style="color:green"><---></font>'
+          break
+        case -1:
+          chains[key].dstConnection =
+                '<font style="color:#F39C12"><---></font>'
+          break
+        default:
+          chains[key].dstConnection =
+                '<font style="color:red"><-?-></font>'
+      }
+      chains[key].srcSentBytes = getReadableFileSizeString(
+        chains[key].srcSentBytes
+      )
+      chains[key].dstSentBytes = getReadableFileSizeString(
+        chains[key].dstSentBytes
+      )
+    }
+    const result = Object.keys(chains).map(function (key) {
+      return chains[key]
+    })
+    const t = {
+      '<>': 'tr',
+      html: [
+        { '<>': 'td', html: '${clientId}' },
+        { '<>': 'td', html: '${serverName}' },
+        { '<>': 'td', html: '${srcId}' },
+        {
+          '<>': 'td',
+          html: 'S${srcConnection}${serverName}${dstConnection}D'
+        },
+        { '<>': 'td', html: '${localAddress}:${localPort}' },
+        { '<>': 'td', html: '${dstProtocol}://${dstAddr}${dstProtocol == "prefab" ? "" : ":" + dstPort}' },
+        { '<>': 'td', html: '↑${srcSentBytes}' },
+        { '<>': 'td', html: '↓${dstSentBytes}' }
+      ]
+    }
+    document.getElementById('monitor').innerHTML = json2html.transform(
+      result,
+      t
+    )
+  })
+}, 1000)
+  </script>
+</body>
+
 </html>

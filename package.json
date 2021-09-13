@@ -4,7 +4,10 @@
   "description": "a websocket tunnel to join sockets",
   "main": "wstunnel_with_http_server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node ./server/wstunnel-httpserver.js",
+    "socks5Server": "node ./universal/SocksServer.js",
+    "client": "node ./client/localListener.js"
   },
   "keywords": [],
   "author": "arily",
@@ -13,12 +16,22 @@
     "console-stamp": "^0.2.9",
     "dgram": "^1.0.1",
     "http": "0.0.0",
-    "lib-ws-tunnel": "github:arily/lib-ws-tunnel",
     "mime-types": "^2.1.24",
     "net": "^1.0.2",
     "path": "^0.12.7",
     "socksv5": "0.0.6",
-    "url": "^0.11.0",
+    "url-match-patterns": "^0.2.0",
     "ws": "^7.0.1"
+  },
+  "workspaces": [
+    "lib/lib-ws-tunnel"
+  ],
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0"
   }
 }
