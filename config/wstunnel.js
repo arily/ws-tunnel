@@ -3,7 +3,8 @@ module.exports = {
     port: parseInt(process.env.PORT) || 5001,
     output: process.env.OUTPUT === 'TRUE' || false,
     outputLevel: parseInt(process.env.OUTPUTLEVEL) || 1,
-    wspath: process.env.WSPATH || '/'
+    wspath: process.env.WSPATH || '/',
+    serverName: 'arily'
   },
   Proxifier: {
     reconnectWindow: parseInt(process.env.RECONNECT_WINDOW) || 5000,

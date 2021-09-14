@@ -37,7 +37,7 @@ try {
     prefabRoute: conf.Prefab,
     proxifier: conf.Proxifier,
     path: wspath,
-    proxyServerName: 'arily'
+    serverName: conf.serverName || 'server'
   })
   const server = http.createServer(function (request, response) {
     switch (request.url) {

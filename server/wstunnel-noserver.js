@@ -10,7 +10,8 @@ let {
   port,
   // output,
   outputLevel,
-  wspath
+  wspath,
+  serverName
 } = require('./config/wstunnel').wsServer
 //   report = output
 const logLevel = outputLevel
@@ -23,7 +24,7 @@ try {
     port: port,
     clientTracking: 0,
     path: wspath,
-    proxyServerName: 'arily'
+    serverName: serverName || 'server'
   })
 } catch (error) {
   if (logLevel > 1) console.log(error)

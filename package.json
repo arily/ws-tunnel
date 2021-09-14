@@ -21,6 +21,7 @@
     "path": "^0.12.7",
     "socksv5": "0.0.6",
     "url-match-patterns": "^0.2.0",
+    "uuid": "^8.3.2",
     "ws": "^7.0.1"
   },
   "workspaces": [

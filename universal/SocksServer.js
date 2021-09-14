@@ -9,6 +9,7 @@ srv.listen(10800, 'localhost', function () {
 })
 
 srv.useAuth(socks.auth.UserPassword(function (user, password, cb) {
-  const stat = user === 'nodejs' && password === 'rules!'
+  // const stat = user === 'nodejs' && password === 'rules!'
+  const stat = true
   cb(stat)
 }))
