@@ -22,7 +22,8 @@ let {
   port,
   // output,
   outputLevel,
-  wspath
+  wspath,
+  serverName
 } = conf.wsServer
 // let report = output
 const logLevel = outputLevel
@@ -37,14 +38,14 @@ try {
     prefabRoute: conf.Prefab,
     proxifier: conf.Proxifier,
     path: wspath,
-    serverName: conf.serverName || 'server'
+    serverName: serverName || 'server'
   })
   const server = http.createServer(function (request, response) {
     switch (request.url) {
       case wspath:
         break
       case '/api/connections': {
-        const chains = s.connections.getChains()
+        const chains = [...s.connections.values()].map(conn => conn.chain)
         fileServer.response_success(request, response, 'application/json', JSON.stringify(chains), 200, this.caller)
         break
       }

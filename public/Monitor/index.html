@@ -29,7 +29,6 @@
         <thead>
           <tr>
             <th scope="col">Client</th>
-            <th scope="col">Server</th>
             <th scope="col">Connection ID</th>
             <th scope="col">Status</th>
             <th scope="col">Local</th>
@@ -59,71 +58,67 @@ function getReadableFileSizeString (fileSizeInBytes) {
 
   return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i]
 }
-window.onload = setInterval(function () {
+const t = {
+  '<>': 'tr',
+  html: [
+    { '<>': 'td', html: '${clientId}' },
+    { '<>': 'td', html: '${srcId}' },
+    {
+      '<>': 'td',
+      html: 'Src ${srcConnection} ${serverName} ${dstConnection} Dst'
+    },
+    { '<>': 'td', html: '${localAddress}:${localPort}' },
+    { '<>': 'td', html: '${dstProtocol}://${dstAddr}${dstProtocol == "prefab" ? "" : ":" + dstPort}' },
+    { '<>': 'td', html: '↑${srcSentBytes}' },
+    { '<>': 'td', html: '↓${dstSentBytes}' }
+  ]
+}
+window.onload = () => setInterval(function () {
   $.getJSON('../api/connections', (chains) => {
-    for (const key in chains) {
-      switch (chains[key].srcConnection) {
+    chains.forEach(v => {
+      switch (v.srcConnection) {
         case 0:
-          chains[key].srcConnection =
-                '<font style="opacity: 0.5;"><---></font>'
+          v.srcConnection =
+            '<font style="opacity: 0.5;"><---></font>'
           break
         case 1:
-          chains[key].srcConnection =
-                '<font style="color:green"><---></font>'
+          v.srcConnection =
+            '<font style="color:green"><---></font>'
           break
         case -1:
-          chains[key].srcConnection =
-                '<font style="color:#F39C12"><---></font>'
+          v.srcConnection =
+            '<font style="color:#F39C12"><---></font>'
           break
         default:
-          chains[key].srcConnection =
-                '<font style="color:red"><-?-></font>'
+          v.srcConnection =
+            '<font style="color:red"><-?-></font>'
       }
-      switch (chains[key].dstConnection) {
+      switch (v.dstConnection) {
         case 0:
-          chains[key].dstConnection =
-                '<font style="opacity: 0.5;"><---></font>'
+          v.dstConnection =
+            '<font style="opacity: 0.5;"><---></font>'
           break
         case 1:
-          chains[key].dstConnection =
-                '<font style="color:green"><---></font>'
+          v.dstConnection =
+            '<font style="color:green"><---></font>'
           break
         case -1:
-          chains[key].dstConnection =
-                '<font style="color:#F39C12"><---></font>'
+          v.dstConnection =
+            '<font style="color:#F39C12"><---></font>'
           break
         default:
-          chains[key].dstConnection =
-                '<font style="color:red"><-?-></font>'
+          v.dstConnection =
+            '<font style="color:red"><-?-></font>'
       }
-      chains[key].srcSentBytes = getReadableFileSizeString(
-        chains[key].srcSentBytes
+      v.srcSentBytes = getReadableFileSizeString(
+        v.srcSentBytes
       )
-      chains[key].dstSentBytes = getReadableFileSizeString(
-        chains[key].dstSentBytes
+      v.dstSentBytes = getReadableFileSizeString(
+        v.dstSentBytes
       )
-    }
-    const result = Object.keys(chains).map(function (key) {
-      return chains[key]
     })
-    const t = {
-      '<>': 'tr',
-      html: [
-        { '<>': 'td', html: '${clientId}' },
-        { '<>': 'td', html: '${serverName}' },
-        { '<>': 'td', html: '${srcId}' },
-        {
-          '<>': 'td',
-          html: 'S${srcConnection}${serverName}${dstConnection}D'
-        },
-        { '<>': 'td', html: '${localAddress}:${localPort}' },
-        { '<>': 'td', html: '${dstProtocol}://${dstAddr}${dstProtocol == "prefab" ? "" : ":" + dstPort}' },
-        { '<>': 'td', html: '↑${srcSentBytes}' },
-        { '<>': 'td', html: '↓${dstSentBytes}' }
-      ]
-    }
     document.getElementById('monitor').innerHTML = json2html.transform(
-      result,
+      chains,
       t
     )
   })
