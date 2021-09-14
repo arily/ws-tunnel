@@ -13,6 +13,7 @@
   <link rel="stylesheet" type="text/css" href="css/normalize.css" />
   <link rel="stylesheet" type="text/css" href="css/demo.css" />
   <link rel="stylesheet" type="text/css" href="css/component.css" />
+  <link rel="stylesheet" type="text/css" href="css/utility.css" />
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Inconsolata|Roboto+Mono&display=swap" rel="stylesheet" />
   <!--[if IE]>
@@ -28,12 +29,12 @@
       <table class="">
         <thead>
           <tr>
-            <th scope="col">Client</th>
-            <th scope="col">Connection ID</th>
-            <th scope="col">Status</th>
-            <th scope="col">Local</th>
-            <th scope="col">Destination</th>
-            <th colspan="2">Traffic</th>
+            <th scope="col" >Client</th>
+            <th scope="col" >Connection ID</th>
+            <th scope="col" >Status</th>
+            <th scope="col" >Local</th>
+            <th scope="col" >Destination</th>
+            <th colspan="2" >Traffic</th>
           </tr>
         </thead>
         <tbody id="monitor"></tbody>
@@ -68,7 +69,12 @@ const t = {
       html: 'Src ${srcConnection} ${serverName} ${dstConnection} Dst'
     },
     { '<>': 'td', html: '${localAddress}:${localPort}' },
-    { '<>': 'td', html: '${dstProtocol}://${dstAddr}${dstProtocol == "prefab" ? "" : ":" + dstPort}' },
+    {
+      '<>': 'td',
+      html ({ dstProtocol, dstAddr, dstPort }) {
+        return `${dstProtocol}://${dstAddr}${(dstPort ? ':' + dstPort : '')}`
+      }
+    },
     { '<>': 'td', html: '↑${srcSentBytes}' },
     { '<>': 'td', html: '↓${dstSentBytes}' }
   ]

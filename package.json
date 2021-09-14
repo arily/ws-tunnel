@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "node ./server/wstunnel-httpserver.js",
     "socks5Server": "node ./universal/SocksServer.js",
+    "httpProxyServer": "node ./universal/HttpProxyServer.js",
     "client": "node ./client/localListener.js"
   },
   "keywords": [],
@@ -19,6 +20,7 @@
     "mime-types": "^2.1.24",
     "net": "^1.0.2",
     "path": "^0.12.7",
+    "proxy": "^1.0.2",
     "socksv5": "0.0.6",
     "url-match-patterns": "^0.2.0",
     "uuid": "^8.3.2",
