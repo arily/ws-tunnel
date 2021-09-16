@@ -71,7 +71,8 @@ staticServer.prototype.response_404 = function (request, response) {
 }
 
 staticServer.prototype.response_success = function (request, response, mime, data, httpcode = 200, file = undefined) {
-  response.writeHeader(httpcode, {
+  const method = response.writeHeader || response.writeHead
+  method.call(response, httpcode, {
     'content-type': mime
   })
   response.write(data)
@@ -83,7 +84,7 @@ staticServer.prototype.response_success = function (request, response, mime, dat
     } else {
       substr = ''
     }
-    console.log('[mini-staticServer-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(substr))
+    // console.log('[mini-staticServer-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(substr))
   }
 }
 

@@ -31,9 +31,9 @@
           <tr>
             <th scope="col" >Client</th>
             <th scope="col" >Connection ID</th>
-            <th scope="col" >Status</th>
-            <th scope="col" >Local</th>
-            <th scope="col" >Destination</th>
+            <th scope="col" >Transport</th>
+            <th scope="col" >Flow</th>
+            <!-- <th scope="col" >Destination</th> -->
             <th colspan="2" >Traffic</th>
           </tr>
         </thead>
@@ -62,17 +62,13 @@ function getReadableFileSizeString (fileSizeInBytes) {
 const t = {
   '<>': 'tr',
   html: [
-    { '<>': 'td', html: '${clientId}' },
-    { '<>': 'td', html: '${srcId}' },
+    { '<>': 'td', html: '${client.id}' },
+    { '<>': 'td', html: '${src.id}' },
+    { '<>': 'td', html: '${transport}' },
     {
       '<>': 'td',
-      html: 'Src ${srcConnection} ${serverName} ${dstConnection} Dst'
-    },
-    { '<>': 'td', html: '${localAddress}:${localPort}' },
-    {
-      '<>': 'td',
-      html ({ dstProtocol, dstAddr, dstPort }) {
-        return `${dstProtocol}://${dstAddr}${(dstPort ? ':' + dstPort : '')}`
+      html ({ client, src, gate, dst, final }) {
+        return `${client.src.address}:${client.src.port} || ${client.address}:${client.port} || ${src.address}:${src.port} ${src.connection} ${gate.name} || ${gate.address}:${gate.port} ${dst.connection} ${dst.protocol}://${dst.address}${(dst.port ? ':' + dst.port : '')}${final ? ' || ' + final.location : ''}`
       }
     },
     { '<>': 'td', html: '↑${srcSentBytes}' },
@@ -82,45 +78,45 @@ const t = {
 window.onload = () => setInterval(function () {
   $.getJSON('../api/connections', (chains) => {
     chains.forEach(v => {
-      switch (v.srcConnection) {
+      switch (v.src.connection) {
         case 0:
-          v.srcConnection =
+          v.src.connection =
             '<font style="opacity: 0.5;"><---></font>'
           break
         case 1:
-          v.srcConnection =
+          v.src.connection =
             '<font style="color:green"><---></font>'
           break
         case -1:
-          v.srcConnection =
+          v.src.connection =
             '<font style="color:#F39C12"><---></font>'
           break
         default:
-          v.srcConnection =
+          v.src.connection =
             '<font style="color:red"><-?-></font>'
       }
-      switch (v.dstConnection) {
+      switch (v.dst.connection) {
         case 0:
-          v.dstConnection =
+          v.dst.connection =
             '<font style="opacity: 0.5;"><---></font>'
           break
         case 1:
-          v.dstConnection =
+          v.dst.connection =
             '<font style="color:green"><---></font>'
           break
         case -1:
-          v.dstConnection =
+          v.dst.connection =
             '<font style="color:#F39C12"><---></font>'
           break
         default:
-          v.dstConnection =
+          v.dst.connection =
             '<font style="color:red"><-?-></font>'
       }
       v.srcSentBytes = getReadableFileSizeString(
-        v.srcSentBytes
+        v.src.bytesRead
       )
       v.dstSentBytes = getReadableFileSizeString(
-        v.dstSentBytes
+        v.dst.bytesWritten
       )
     })
     document.getElementById('monitor').innerHTML = json2html.transform(

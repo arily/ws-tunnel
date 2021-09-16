@@ -1,6 +1,6 @@
 const net = require('net')
 const Ws = require('ws')
-// const url = require('url')
+const http2 = require('http2')
 const uuid = require('uuid')
 const config = require('../config/local')
 require('console-stamp')(console, '[HH:MM:ss.l]')
@@ -15,11 +15,64 @@ const getUniqueID = function (name) {
 }
 
 const report = (chain) => {
-  console.info(chain.localAddr + ':'.concat(chain.port), '->', chain.remote, '->', chain.dest)
+  console.info((chain.address || chain.localAddr) + ':' + chain.port, '->', chain.remote, '->', chain.dest)
+}
+const head = Buffer.from('')
+const wsHttp2Wrapper = (address, path, options) => {
+  // try {
+  //   const ws = new Ws(null)
+  //   ws._isServer = false
+
+  //   const destroy = error => {
+  //     ws._readyState = Ws.CLOSING
+
+  //     // ws.emit('error', error)
+  //     throw error
+  //   }
+
+  //   const client = http2.connect(address.replace('wss', 'https'), options)
+  //   const headers = {
+  //     ...options,
+  //     ':method': 'CONNECT',
+  //     ':protocol': 'websocket',
+  //     ':path': path,
+  //     origin: (new URL(address)).origin,
+  //     ...options.headers ?? {}
+  //   }
+  //   delete headers.headers
+  //   const stream = client.request(headers, options)
+
+  //   stream.on('data', (b) => console.log(b.toString()))
+  //   stream.once('error', destroy)
+
+  //   stream.once('response', _headers => {
+  //     stream.off('error', destroy)
+
+  //     stream.setNoDelay = () => {}
+  //     ws.setSocket(stream, head, 100 * 1024 * 1024)
+  //   })
+  //   return ws
+  // } catch (error) {
+  //   console.log(error)
+  //   // destroy(error)
+
+  //   // fallback
+  // }
+  return new Ws(`${address}/${path}`, options)
 }
 const wsRelay = function (socket, remote, dest, clientId, testDrop = false) {
   let timer
-  const c = new Ws(remote + '/' + dest, { headers: { connectionId: uuid.v4(), clientId } })
+  const c = wsHttp2Wrapper(remote, dest, {
+    rejectUnauthorized: false,
+    headers: {
+      connectionId: uuid.v4(),
+      clientId,
+      clientAddress: socket.localAddress,
+      clientPort: socket.localPort,
+      connectionAddress: socket.remoteAddress,
+      connectionPort: socket.remotePort
+    }
+  })
   if (testDrop) {
     timer = setTimeout(_ => {
       c.close(1001)
@@ -74,6 +127,7 @@ const wsRelay = function (socket, remote, dest, clientId, testDrop = false) {
   })
   c.on('error', (e) => {
     //            c.close(1001);
+    console.log(e)
     return 1001
   })
   socket.on('error', (e) => {
@@ -92,7 +146,7 @@ const wsRelay = function (socket, remote, dest, clientId, testDrop = false) {
   })
 }
 
-const createServer = (addr, port, remote, dest, testDrop) => {
+const createServer = (address, port, remote, dest, testDrop) => {
   const tcp = net.createServer((socket) => {
     const clientId = getUniqueID(socket.remoteAddress)
     wsRelay(socket, remote, dest, clientId, testDrop)
@@ -141,7 +195,7 @@ const createReverseRelayTCP = (protocol, localPort, localAddr, remote, dest) => 
 const createServers = (array) => {
   array.forEach((item) => {
     if (!item.reverse) {
-      createServer(item.addr, item.port, item.remote, item.dest, item.testDrop)
+      createServer(item.address, item.port, item.remote, item.dest, item.testDrop)
     } else if (item.reverse) {
       const url = new URL(item.localAddr)
       const protocol = url.protocol

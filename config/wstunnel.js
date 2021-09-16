@@ -1,10 +1,16 @@
+const fs = require('fs')
+const path = require('path')
 module.exports = {
   wsServer: {
     port: parseInt(process.env.PORT) || 5001,
     output: process.env.OUTPUT === 'TRUE' || false,
     outputLevel: parseInt(process.env.OUTPUTLEVEL) || 1,
     wspath: process.env.WSPATH || '/',
-    serverName: 'arily'
+    key: fs.readFileSync(path.join(__dirname, 'secret/server.key')),
+    cert: fs.readFileSync(path.join(__dirname, 'secret/server.crt')),
+    gate: {
+      name: 'arily'
+    }
   },
   Proxifier: {
     reconnectWindow: parseInt(process.env.RECONNECT_WINDOW) || 5000,

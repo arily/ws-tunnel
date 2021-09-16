@@ -11,7 +11,9 @@ let {
   // output,
   outputLevel,
   wspath,
-  serverName
+  gate: {
+    name
+  }
 } = require('./config/wstunnel').wsServer
 //   report = output
 const logLevel = outputLevel
@@ -24,7 +26,9 @@ try {
     port: port,
     clientTracking: 0,
     path: wspath,
-    serverName: serverName || 'server'
+    gate: {
+      name: name || 'server'
+    }
   })
 } catch (error) {
   if (logLevel > 1) console.log(error)
