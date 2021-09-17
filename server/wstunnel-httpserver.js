@@ -85,12 +85,16 @@ try {
             })
               .end(res)
           }
-          const res = JSON.stringify({ ok: true })
-          response.writeHead(200, {
-            'Content-Length': Buffer.byteLength(res),
-            'Content-Type': 'application/json'
-          })
-            .end(res)
+          try {
+            const res = JSON.stringify({ ok: true })
+            response.writeHead(200, {
+              'Content-Length': Buffer.byteLength(res),
+              'Content-Type': 'application/json'
+            })
+              .end(res)
+          } catch (error) {
+
+          }
         })
         break
       }
@@ -156,7 +160,6 @@ try {
     server.on('upgrade', (request, socket, head) => {
       const pathname = request.url
       const pattern = 'http://dummy'.concat(wspath, '/*')
-      console.log(pattern)
       if (match(pattern, 'http://dummy' + pathname)) {
         s.server.handleUpgrade(request, socket, head, (ws) => {
           s.server.emit('connection', ws, request)

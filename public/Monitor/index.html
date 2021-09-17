@@ -116,7 +116,7 @@ window.onload = () => setInterval(function () {
         v.src.bytesRead
       )
       v.dstSentBytes = getReadableFileSizeString(
-        v.dst.bytesWritten
+        v.dst.bytesRead
       )
     })
     document.getElementById('monitor').innerHTML = json2html.transform(
