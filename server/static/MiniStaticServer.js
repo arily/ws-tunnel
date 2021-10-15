@@ -6,7 +6,7 @@ const fileExists = fsall.existsSync
 const mime = require('mime-types')
 
 // https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
-require('console-stamp')(console, '[HH:MM:ss.l]')
+// require('console-stamp')(console, '[HH:MM:ss.l]')
 
 function staticServer ({ root = '/', index = ['index.html', 'default.html', 'fallback.html'] }) {
   this.root = root
@@ -77,15 +77,15 @@ staticServer.prototype.response_success = function (request, response, mime, dat
   })
   response.write(data)
   response.end()
-  let substr
-  if (logLevel <= 1) {
-    if (file !== undefined) {
-      substr = ' -> '.concat(file)
-    } else {
-      substr = ''
-    }
-    // console.log('[mini-staticServer-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(substr))
-  }
+  // let substr
+  // if (logLevel <= 1) {
+  //   if (file !== undefined) {
+  //     substr = ' -> '.concat(file)
+  //   } else {
+  //     substr = ''
+  //   }
+  //   // console.log('[mini-staticServer-server] ['.concat(httpcode).concat('] ').concat(request.url).concat(substr))
+  // }
 }
 
 staticServer.prototype.location = function (request, response, location, httpcode = 301) {

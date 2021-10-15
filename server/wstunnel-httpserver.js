@@ -3,10 +3,11 @@ const http2 = require('http2')
 const net = require('net')
 const path = require('path')
 const match = require('url-match-patterns').default
+const doNothing = () => {}
 // const uuid = require('uuid')
 
 // https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
-require('console-stamp')(console, '[HH:MM:ss.l]')
+// require('console-stamp')(console, '[HH:MM:ss.l]')
 
 const WsServer = require('lib-ws-tunnel').WsServer
 
@@ -85,16 +86,13 @@ try {
             })
               .end(res)
           }
-          try {
-            const res = JSON.stringify({ ok: true })
-            response.writeHead(200, {
-              'Content-Length': Buffer.byteLength(res),
-              'Content-Type': 'application/json'
-            })
-              .end(res)
-          } catch (error) {
-
-          }
+          response.on('error', doNothing)
+          const res = JSON.stringify({ ok: true })
+          response.writeHead(200, {
+            'Content-Length': Buffer.byteLength(res),
+            'Content-Type': 'application/json'
+          })
+            .end(res)
         })
         break
       }
