@@ -4,7 +4,7 @@
 // https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
 require('console-stamp')(console, '[HH:MM:ss.l]')
 
-const WsTunnelServer = require('lib-ws-tunnel').WsServer
+const WsTunnelServer = require('./lib').WsServer
 
 let {
   port,

@@ -1,6 +1,5 @@
 // https://github.com/mscdex/socksv5
 const socks = require('socksv5')
-const fetch = require('node-fetch')
 const wsServerConfig = require('../config/wstunnel').wsServer
 
 const srv = socks.createServer(async function (info, accept, deny) {

@@ -1,7 +1,19 @@
-const Server = require('ws').Server
-const WsTunnel = require('./wsTunnel')
+import { type IncomingMessage } from 'http'
+import WsTunnel from './wsTunnel'
+import { Server } from 'ws'
 
-module.exports = class wsServer {
+export default class WsServer {
+  prefix: string
+  name: string
+  prefabRoute: Array<{ dial: string, bound: string }>
+  proxifierConfig: {
+    reconnectWindow: number
+    reconnectEnabled: boolean
+  }
+
+  server: Server
+  connections: Map<string | string[], WsTunnel>
+
   constructor (wsConfig, { prefix = '/', gate = { name: 'Proxy' }, prefabRoute = [], proxifier }) {
     if (prefix.substring(prefix.length - 1) === '/') {
       prefix = prefix.substring(0, prefix.length - 1)
@@ -16,16 +28,19 @@ module.exports = class wsServer {
     this.server.on('connection', this.newConnection.bind(this))
   }
 
-  prefab (prefab) {
+  prefab (prefab: Array<{ dial: string, bound: string }>) {
     this.prefabRoute = prefab
   }
 
-  newConnection (src, req) {
+  newConnection (src: WebSocket, req: IncomingMessage) {
     try {
       // src.pause()
       const rawurl = req.url ?? req[':path'] // like /url:port
       const headers = req.headers
-      const connectionId = headers.connectionId || headers.connectionid
+      const connectionId = headers.connectionId ?? headers.connectionid
+
+      if (!connectionId) throw new Error('missing connection Id')
+
       const url = this.parseURL(rawurl)
       const protocol = url.protocol
       const port = url.port
@@ -33,6 +48,9 @@ module.exports = class wsServer {
       if (this.connections.has(connectionId)) {
         console.log('connectionId exists, recovering socket...')
         const wsTunnel = this.connections.get(connectionId)
+        if (!wsTunnel) {
+          throw new Error('missing tunnel')
+        }
         wsTunnel.proxifier.srcReconnect(src)
       } else {
         this.connections.set(connectionId, new WsTunnel({ src, protocol, port, address, req, headers, server: this }))

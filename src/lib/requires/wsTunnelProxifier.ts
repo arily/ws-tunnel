@@ -1,25 +1,41 @@
-/* eslint-disable camelcase */
-const report_status = require('./reportStatus')
-module.exports = class wsTunnelProxifier {
-  constructor ({ eventName, tunnel }, config = {
+import { type Socket } from 'net'
+import { type Chain, type Protocol } from './wsTunnel'
+import { type IncomingMessage } from 'http'
+import report_status from './reportStatus'
+interface Tunnel {
+  dst: Socket
+  src: WebSocket
+  req: IncomingMessage
+  protocol: Protocol
+  eventName: {
+    srcOnMessageEvent: string
+    dstOnMessageEvent: string
+    srcSendMethod: string
+    dstSendMethod: string
+    srcClose: string
+    dstClose: string
+    dstOnConnection: string
+  }
+  chain: Chain
+}
+export default class wsTunnelProxifier {
+  config: any
+  tunnel: Tunnel
+  eventName: Tunnel['eventName']
+  constructor (tunnel: Tunnel, config = {
     reconnectWindow: 5000,
     reconnectEnabled: true,
     report: false
   }) {
     this.tunnel = tunnel
-    const { dst, src, req, protocol: type } = tunnel
-    // this.src = src
-    // this.dst = dst
-    // this.address = address
-    // this.req = req
-    // this.port = port
+    const { dst, src, req, protocol: type, eventName } = tunnel
     this.eventName = eventName
     this.config = config
 
-    dst.on('error', (e) => {
+    dst.on('error', () => {
       this.closeDst()
     })
-    src.on('error', e => {
+    src.on('error', () => {
       this.closeSrc(1001)
     })
     this.tunnel.chain.transport = `ws HTTP${req?.httpVersion}`
@@ -85,7 +101,7 @@ module.exports = class wsTunnelProxifier {
     })
   }
 
-  srcReconnect (src) {
+  srcReconnect (src: Socket) {
     this.src.terminate()
     delete this.src
     this.src = src
@@ -99,7 +115,7 @@ module.exports = class wsTunnelProxifier {
     if (this.type === 'udp') {
       this.src.on(this.eventName.srcOnMessageEvent, (data) => {
         this.dst[this.eventName.dstSendMethod](data, this.port)
-      // this.tunnel.chain.src.bytesRead += data.byteLength
+        // this.tunnel.chain.src.bytesRead += data.byteLength
       })
     } else this.src.on(this.eventName.srcOnMessageEvent, this.dst[this.eventName.dstSendMethod].bind(this.dst))
     // this.dst.on(this.eventName.dstOnMessageEvent, (data) => {

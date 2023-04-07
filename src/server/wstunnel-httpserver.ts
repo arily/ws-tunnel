@@ -1,22 +1,21 @@
-const http = require('http')
-const http2 = require('http2')
-const net = require('net')
-const path = require('path')
-const match = require('url-match-patterns').default
-const doNothing = () => {}
-// const uuid = require('uuid')
+import { type Socket } from 'net'
 
+import http, { IncomingMessage, type ClientRequest, type ServerResponse } from 'http'
+import http2 from 'http2'
+import net from 'net'
+import path from 'path'
+
+import StaticServer from './static/MiniStaticServer'
+
+import conf from '../config/wstunnel'
+import WsServer from '../lib/requires/wsServer'
+import match from 'url-match-patterns'
 // https://stackoverflow.com/questions/13364243/websocketserver-node-js-how-to-differentiate-clients
 // require('console-stamp')(console, '[HH:MM:ss.l]')
-
-const WsServer = require('lib-ws-tunnel').WsServer
-
-const StaticServer = require('./static/MiniStaticServer')
+const doNothing = () => {}
 const fileServer = new StaticServer({
   root: path.join(__dirname, '../public')
 })
-
-const conf = require('../config/wstunnel')
 let {
   port,
   // output,
@@ -36,14 +35,14 @@ try {
     noServer: true,
     clientTracking: 0
   }, {
-    prefabRoute: conf.Prefab,
-    proxifier: conf.Proxifier,
-    path: wspath,
+    prefabRoute: conf.prefab,
+    proxifier: conf.proxifier,
+    // path: wspath,
     gate: {
       name: name || 'server'
     }
   })
-  const handler = function (request, response) {
+  const handler = async function (request: Request, response: ServerResponse) {
     switch (request.url) {
       case wspath:
         break
@@ -57,14 +56,14 @@ try {
         // fileServer.response_success(request, response, 'application/json', JSON.stringify(chains), 200, this.caller)
 
         // https://nodejs.org/zh-cn/docs/guides/anatomy-of-an-http-transaction/
-        let body = []
-        request.on('data', (chunk) => {
+        const body: Buffer[] = []
+        request.on('data', (chunk: Buffer) => {
           body.push(chunk)
         }).on('end', () => {
-          body = Buffer.concat(body).toString()
+          const str = Buffer.concat(body).toString()
           // at this point, `body` has the entire request body stored in it as a string
           try {
-            const json = JSON.parse(body)
+            const json = JSON.parse(str)
             // if (!json.connectionId) throw new Error('no connectionId')
             // if (!s.connections.has(json.connectionId)) throw new Error('connection id not exists')
             if (!json.src) throw new Error('no src')
@@ -97,7 +96,7 @@ try {
         break
       }
       default:
-        fileServer.request(request, response)
+        await fileServer.request(request, response)
     }
     fileServer.access_log(request)
   }
@@ -148,18 +147,11 @@ try {
   server.https = http2Server
 
   ;[httpServer, http2Server].forEach(server => {
-    // server.listen(port, () => {
-    //   console.info((new Date()) + ' Server is listening on port', port)
-    // })
-    // server.on('connection', (conn) => {
-    //   conn.socketId = uuid.v4()
-    // })
-
-    server.on('upgrade', (request, socket, head) => {
+    server.on('upgrade', (request: Request, socket: Socket, head: Headers) => {
       const pathname = request.url
       const pattern = 'http://dummy'.concat(wspath, '/*')
       if (match(pattern, 'http://dummy' + pathname)) {
-        s.server.handleUpgrade(request, socket, head, (ws) => {
+        s.server.handleUpgrade(request, socket, head, (ws: WebSocket) => {
           s.server.emit('connection', ws, request)
         })
       } else {
@@ -167,27 +159,7 @@ try {
       }
     })
   })
-  // const head = Buffer.from('')
-  // http2Server.on('stream', (stream, headers) => {
-  //   // console.log(headers)
-  //   stream.headers = headers
-  //   if (headers[':method'] === 'CONNECT') {
-  //     // stream.respond()
-
-  //     // const ws = new Websocket(null)
-  //     // stream.setNoDelay = () => {}
-  //     // ws.setSocket(stream, head, 100 * 1024 * 1024)
-
-  //     // s.server.emit('connection', ws, stream)
-  //     s.server.handleUpgrade(stream, stream.session, head, (ws) => {
-  //       s.server.emit('connection', ws, stream)
-  //     })
-  //   } else {
-  //     stream.respond()
-  //     stream.end('ok')
-  //   }
-  // })
-  server.listen(port, () => console.log('Server started'))
+  server.listen(port, () => { console.log('Server started') })
 } catch (error) {
   if (logLevel > 1) console.log(error)
 }

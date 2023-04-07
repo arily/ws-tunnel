@@ -1,14 +1,69 @@
 /* eslint-disable camelcase */
-const net = require('net')
-const dgram = require('dgram')
-const WsTunnelProxifier = require('./wsTunnelProxifier')
-const { getEventNames: eventNameResolver } = require('../constants')
-const report_status = require('./reportStatus')
-module.exports = class wsTunnel {
-  constructor ({ src, protocol, port, address, req, headers, server }) {
+import net, { type Socket } from 'net'
+import dgram from 'dgram'
+import WsTunnelProxifier from './wsTunnelProxifier'
+import { getEventNames as eventNameResolver } from '../constants'
+import report_status from './reportStatus'
+import { type IncomingMessage } from 'http'
+import type WsServer from './wsServer'
+export type Protocol = 'tcp' | 'udp' | 'reversetcp'
+export type HeaderWithId =
+& ({ connectionid: string } | { connectionId: string })
+& ({ clientAddress: string } | { clientaddress: string })
+& ({ clientPort: string } | { clientport: string })
+& ({ connectionAddress: string } | { connectionaddress: string })
+& ({ connectionPort: string } | { connectionport: string })
+
+export interface Chain {
+  src: {
+    id: string
+    connection: number
+    bytesRead: number
+    bytesWritten: number
+    port?: number
+    address?: string
+  }
+  dst: {
+    protocol: Protocol
+    connection: number
+    bytesRead: number
+    bytesWritten: number
+    port?: number
+    address?: string
+  }
+  client: {
+    id: string
+    port: number
+    address: string
+    src: {
+      port: number
+      address: string
+    }
+  }
+  gate: {
+    name: string
+    port?: number
+    address?: string
+  }
+  transport?: string
+}
+export default class wsTunnel {
+  name: string
+  src: Socket
+  dst?: Socket
+  protocol: Protocol
+  port: number
+  address: string
+  req: IncomingMessage
+  headers: HeaderWithId
+  server: WsServer
+  chain?: Chain
+  proxifier?: WsTunnelProxifier
+
+  constructor ({ src, protocol, port, address, req, headers, server }: { src: Socket | Socket, protocol: string, port: number, address: `${Protocol}/`, req: IncomingMessage, headers: HeaderWithId, server: WsServer }) {
     this.name = server.name
     this.src = src
-    this.protocol = protocol.substring(0, protocol.length - 1)
+    this.protocol = protocol.substring(0, protocol.length - 1) as Protocol
     this.port = port
     this.address = address
     this.req = req
@@ -18,21 +73,13 @@ module.exports = class wsTunnel {
   }
 
   createChain () {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this
     this.chain = {
       src: {
+        // @ts-expect-error it's ok
         id: self.headers.connectionId || self.headers.connectionid,
         connection: 1,
-        // get connection () {
-        //   return self.src.connecting
-        // },
-        // set connection (stat) {
-        //   setImmediate(() => {
-        //     console.log(`set src connection stat to ${stat}, now is ${self.src.connecting}`)
-        //   })
-        // },
-        // bytesRead: 0,
-        // bytesWritten: 0,
         get bytesRead () {
           return self.req.socket.bytesRead
         },
@@ -47,43 +94,30 @@ module.exports = class wsTunnel {
         }
       },
       client: {
+        // @ts-expect-error it's ok
         id: self.headers.clientId || self.headers.clientid,
         get address () {
+          // @ts-expect-error it's ok
           return self.headers.clientAddress || self.headers.clientaddress
         },
         get port () {
+          // @ts-expect-error it's ok
           return self.headers.clientPort || self.headers.clientport
         },
         src: {
-          // get id () {
-          //   return self.headers.connectionId || self.headers.connectionid
-          // },
+
           get address () {
+            // @ts-expect-error it's ok
             return self.headers.connectionAddress || self.headers.connectionaddress
           },
           get port () {
+            // @ts-expect-error it's ok
             return self.headers.connectionPort || self.headers.connectionport
           }
         }
       },
       dst: {
         connection: 0,
-        // get connection () {
-        //   return (
-        //     self.dst.connecting
-        //       ? self.chain.src.connection
-        //         ? 1
-        //         : -1
-        //       : 0
-        //   )
-        // },
-
-        // set connection (stat) {
-        //   const now = self.chain.dst.connection
-        //   setImmediate(() => {
-        //     console.log(`set dst connection stat to ${stat}, now is ${now}`)
-        //   })
-        // },
         get protocol () {
           return self.protocol
         },
@@ -94,10 +128,10 @@ module.exports = class wsTunnel {
           return self.address
         },
         get bytesRead () {
-          return self.dst.bytesRead
+          return self.dst?.bytesRead ?? 0
         },
         get bytesWritten () {
-          return self.dst.bytesWritten
+          return self.dst?.bytesWritten ?? 0
         }
       },
       gate: {
@@ -106,11 +140,11 @@ module.exports = class wsTunnel {
         },
         get port () {
           // if (!self.dst.connecting) return null
-          return self.dst.localPort
+          return self.dst?.localPort
         },
         get address () {
           // if (self.dst.connecting) return null
-          return self.dst.localAddress
+          return self.dst?.localAddress
         }
       }
     }
@@ -147,7 +181,7 @@ module.exports = class wsTunnel {
         dstClose: 'close',
         dstOnConnection: 'listening'
       },
-      // chain: this.chain,
+      chain: this.chain,
       // container: this.server.connections,
       type: 'udp',
       port
@@ -194,7 +228,7 @@ module.exports = class wsTunnel {
   //   })
   // }
 
-  reversetcp (src, port, address, req) {
+  reversetcp (src = this.src, port = this.port, address = this.address, req = this.req) {
     const dst = net.createServer(function (dst) {
       // const address = dst.address()
 

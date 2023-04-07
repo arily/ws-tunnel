@@ -1,20 +1,18 @@
 module.exports = {
   env: {
-    browser: true,
     commonjs: true,
-    es2020: true,
-    node: true,
-    jquery: true
+    node: true
   },
-  extends: [
-    'standard'
-  ],
+  extends: 'standard-with-typescript',
   plugins: [
     'html'
   ],
   parserOptions: {
-    ecmaVersion: 12
+    ecmaVersion: 12,
+    project: './tsconfig.json'
   },
   rules: {
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/strict-boolean-expressions': 'off'
   }
 }
